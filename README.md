@@ -65,3 +65,7 @@ The TOML file is read from the pull request's base commit. It declares the Pytho
 - The first analyzer follows Python imports and recognizes common decorator-based routes. It reports its method and parse errors; the graph is not a complete proof of runtime behavior.
 - The target repository must define `changeguard.toml` and safe test commands on its base branch.
 - The GitHub App, webhook URL, runner workflow, and services need real credentials and a reachable deployment before live PR runs can be exercised.
+
+## Hackathon demo
+
+See the [90-second demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
