@@ -27,6 +27,71 @@ type CheckResult = {
   output_excerpt: string;
 };
 type CheckComparison = { name: string; baseline: CheckResult; candidate: CheckResult };
+type CheckComparisonKind = 'new_failure' | 'pre_existing_failure' | 'fixed' | 'passing' | 'inconclusive';
+type CheckInsight = { kind: CheckComparisonKind; label: string; explanation: string };
+type CheckSummary = { title: string; description: string; tone: 'danger' | 'warning' | 'success' };
+
+function getCheckInsight(check: CheckComparison): CheckInsight {
+  const baseline = String(check.baseline?.status ?? '').toLowerCase();
+  const candidate = String(check.candidate?.status ?? '').toLowerCase();
+
+  if (!['passed', 'failed'].includes(baseline) || !['passed', 'failed'].includes(candidate)) {
+    return {
+      kind: 'inconclusive',
+      label: 'Not enough evidence',
+      explanation: `The comparison is incomplete: base is ${baseline || 'unknown'} and candidate is ${candidate || 'unknown'}.`,
+    };
+  }
+  if (baseline === 'passed' && candidate === 'failed') {
+    return { kind: 'new_failure', label: 'New failure', explanation: 'Passed on base; failed on the proposed change.' };
+  }
+  if (baseline === 'failed' && candidate === 'passed') {
+    return { kind: 'fixed', label: 'Fixed by change', explanation: 'Failed on base; passed on the proposed change.' };
+  }
+  if (baseline === 'failed' && candidate === 'failed') {
+    return { kind: 'pre_existing_failure', label: 'Already failing', explanation: 'Failed on both versions; this change did not clear it.' };
+  }
+  return { kind: 'passing', label: 'Passing on both', explanation: 'Passed on both base and the proposed change.' };
+}
+
+function summarizeChecks(checks: CheckComparison[]): CheckSummary | null {
+  if (!checks.length) return null;
+
+  const counts: Record<CheckComparisonKind, number> = {
+    new_failure: 0,
+    pre_existing_failure: 0,
+    fixed: 0,
+    passing: 0,
+    inconclusive: 0,
+  };
+  checks.forEach((check) => { counts[getCheckInsight(check).kind] += 1; });
+
+  const countLabel = (count: number, noun: string) => `${count} ${noun}${count === 1 ? '' : 's'}`;
+  let title: string;
+  if (counts.new_failure) title = `${countLabel(counts.new_failure, 'new failure')} on proposed change`;
+  else if (counts.inconclusive) title = `${countLabel(counts.inconclusive, 'check')} ${counts.inconclusive === 1 ? 'needs' : 'need'} another look`;
+  else if (counts.pre_existing_failure) title = `${countLabel(counts.pre_existing_failure, 'failure')} already on base`;
+  else if (counts.fixed) title = `The change fixes ${countLabel(counts.fixed, 'check')}`;
+  else title = 'All configured checks pass';
+
+  const details: string[] = [];
+  if (counts.new_failure) details.push(`${countLabel(counts.new_failure, 'check')} passed on base but failed on the proposed change. Review candidate output before merging.`);
+  if (counts.pre_existing_failure) details.push(`${countLabel(counts.pre_existing_failure, 'check')} ${counts.pre_existing_failure === 1 ? 'fails' : 'fail'} on both versions, so they do not appear new in this change.`);
+  if (counts.fixed) details.push(`${countLabel(counts.fixed, 'check')} failed on base and passed on the proposed change.`);
+  if (counts.passing) {
+    details.push(counts.new_failure || counts.pre_existing_failure || counts.fixed
+      ? `${countLabel(counts.passing, 'check')} passed on both versions.`
+      : 'Every check passed on both the base version and the proposed change.');
+  }
+  if (counts.inconclusive) details.push(`Evidence is incomplete for ${countLabel(counts.inconclusive, 'check')}: ${counts.inconclusive === 1 ? 'it timed out, was skipped, or returned' : 'they timed out, were skipped, or returned'} an unknown status.`);
+
+  return {
+    title,
+    description: details.join(' '),
+    tone: counts.new_failure ? 'danger' : counts.inconclusive || counts.pre_existing_failure ? 'warning' : 'success',
+  };
+}
+
 type ImpactRoute = { method: string; path: string; function: string; file_path: string; line_start: number };
 type Impact = {
   changed_files?: string[];
@@ -125,7 +190,9 @@ const DEMO_RUNS: Run[] = [DEMO_DETAILS['sample-failed'], DEMO_DETAILS['sample-fi
 );
 
 function App() {
-  const demoMode = window.location.pathname === '/demo' || window.location.pathname.startsWith('/demo/');
+  const demoMode = import.meta.env.VITE_PUBLIC_DEMO === 'true'
+    || window.location.pathname === '/demo'
+    || window.location.pathname.startsWith('/demo/');
   const [githubStatus, setGithubStatus] = useState<GitHubStatus | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -215,15 +282,16 @@ function App() {
   const setupSteps = demoMode
     ? ['Choose a sample pull request', 'Review changed Python files and routes', 'Compare the checks before and after the fix']
     : user
-    ? ['Install the ChangeGuard GitHub App', 'Open a pull request in a Python backend repository', 'Review the rehearsal status and evidence']
-    : ['Sign in with GitHub', 'Install ChangeGuard for a repository', 'Open a pull request to start a rehearsal'];
+    ? ['Install the GitHub App', 'Open a pull request in a Python backend repository', 'Review the rehearsal status and evidence']
+    : ['Sign in with GitHub', 'Install the GitHub App for a repository', 'Open a pull request to start a rehearsal'];
+  const checkSummary = runDetail ? summarizeChecks(runDetail.check_results) : null;
 
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#home" aria-label="ChangeGuard home">
+        <a className="brand" href="#home" aria-label="DiffHarbor home">
           <span className="brand-mark"><ShieldCheck size={18} strokeWidth={2.3} /></span>
-          <span>changeguard</span>
+          <span>diffharbor</span>
         </a>
 
         <div className="workspace-label">WORKSPACE</div>
@@ -285,7 +353,7 @@ function App() {
               <div className="setup-copy">
                 <div className="setup-kicker">{demoMode ? 'PUBLIC READ-ONLY DEMO' : 'FIRST CONNECTION'}</div>
                 <h2 id="setup-title">{demoMode ? 'Explore a sample failure and fix' : user ? 'Connect a repository to begin' : 'Sign in to connect your repositories'}</h2>
-                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'ChangeGuard will compare a pull request with its base branch, map affected Python backend code, and run the approved checks on a temporary GitHub Actions runner.'}</p>
+                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'DiffHarbor will compare a pull request with its base branch, map affected Python backend code, and run the approved checks on a temporary GitHub Actions runner.'}</p>
                 <ol className="setup-steps">
                   {setupSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span>{step}</li>)}
                 </ol>
@@ -300,7 +368,7 @@ function App() {
                 )}
               </div>
             </div>
-            <div className="setup-card-note"><span className="note-shield"><ShieldCheck size={16} /></span><span>{demoMode ? 'Sample mode is read-only. It does not connect to GitHub or expose any real project data.' : 'Analysis runs in the repository’s CI environment. ChangeGuard reports evidence; your team makes the release decision.'}</span></div>
+            <div className="setup-card-note"><span className="note-shield"><ShieldCheck size={16} /></span><span>{demoMode ? 'Sample mode is read-only. It does not connect to GitHub or expose any real project data.' : 'Analysis runs in the repository’s CI environment. DiffHarbor reports evidence; your team makes the release decision.'}</span></div>
           </section>
 
           <div className="below-grid">
@@ -327,7 +395,7 @@ function App() {
                   {runDetail.workflow_url ? <a className="actions-link" href={runDetail.workflow_url} target="_blank" rel="noreferrer">View GitHub Actions run <ArrowUpRight size={13} /></a> : null}
                 </div>
               ) : (
-                <div className="empty-state"><div className="empty-state-icon"><Waypoints size={19} /></div><strong>{detailError || (user ? 'No run selected yet' : 'Sign in to see impact maps')}</strong><span>{user ? 'Open a pull request in an installed repository to create the first rehearsal.' : 'ChangeGuard traces changed Python modules to affected files and API routes.'}</span></div>
+                <div className="empty-state"><div className="empty-state-icon"><Waypoints size={19} /></div><strong>{detailError || (user ? 'No run selected yet' : 'Sign in to see impact maps')}</strong><span>{user ? 'Open a pull request in an installed repository to create the first rehearsal.' : 'DiffHarbor traces changed Python modules to affected files and API routes.'}</span></div>
               )}
             </section>
             <section className="empty-panel evidence-panel">
@@ -336,8 +404,23 @@ function App() {
                 <div className="empty-state"><strong>Loading check results</strong></div>
               ) : runDetail ? (
                 <div className="evidence-content">
-                  {runDetail.findings.length ? <div className="finding-list">{runDetail.findings.slice(0, 4).map((finding) => <article className="finding-row" key={finding.id}><div><span className={`severity-pill severity-${finding.severity}`}>{finding.severity}</span><strong>{finding.title}</strong></div><p>{finding.description}{finding.file_path ? ` · ${finding.file_path}${finding.line_start ? `:${finding.line_start}` : ''}` : ''}</p></article>)}</div> : <div className="no-findings">No differences were reported by the configured checks.</div>}
-                  {runDetail.check_results.length ? <div className="check-list"><div className="check-head"><span>Check</span><span>Base</span><span>Candidate</span></div>{runDetail.check_results.map((check, index) => <details className="check-item" key={`${check.name}-${index}`}><summary><span>{check.name}</span><span className={`check-status check-${check.baseline.status}`}>{check.baseline.status.replaceAll('_', ' ')}</span><span className={`check-status check-${check.candidate.status}`}>{check.candidate.status.replaceAll('_', ' ')}</span></summary><div className="check-logs"><div><strong>Base output</strong><pre>{check.baseline.output_excerpt || 'No output captured.'}</pre></div><div><strong>Candidate output</strong><pre>{check.candidate.output_excerpt || 'No output captured.'}</pre></div></div></details>)}</div> : <div className="no-findings">No checks have been attached to this run yet.</div>}
+                  {checkSummary ? <div className={`comparison-summary tone-${checkSummary.tone}`} role="status">
+                    <span className="comparison-summary-icon" aria-hidden="true">{checkSummary.tone === 'success' ? '✓' : checkSummary.tone === 'danger' ? '!' : 'i'}</span>
+                    <div><strong>{checkSummary.title}</strong><p>{checkSummary.description}</p></div>
+                  </div> : null}
+                  {runDetail.findings.length ? <div className="finding-list">{runDetail.findings.slice(0, 4).map((finding) => <article className="finding-row" key={finding.id}><div><span className={`severity-pill severity-${finding.severity}`}>{finding.severity}</span><strong>{finding.title}</strong></div><p>{finding.description}{finding.file_path ? ` · ${finding.file_path}${finding.line_start ? `:${finding.line_start}` : ''}` : ''}</p></article>)}</div> : checkSummary ? null : <div className="no-findings">No check findings were reported.</div>}
+                  {runDetail.check_results.length ? <div className="check-list"><div className="check-head"><span>Check</span><span>Base</span><span>Candidate</span></div>{runDetail.check_results.map((check, index) => {
+                    const insight = getCheckInsight(check);
+                    return <details className="check-item" key={`${check.name}-${index}`}>
+                      <summary>
+                        <span className="check-name-cell"><span className="check-name">{check.name}</span><span className={`comparison-label label-${insight.kind}`}>{insight.label}</span></span>
+                        <span className={`check-status check-${check.baseline.status}`}>{check.baseline.status.replaceAll('_', ' ')}</span>
+                        <span className={`check-status check-${check.candidate.status}`}>{check.candidate.status.replaceAll('_', ' ')}</span>
+                      </summary>
+                      <div className="check-insight-copy">{insight.explanation}</div>
+                      <div className="check-logs"><div><strong>Base output</strong><pre>{check.baseline.output_excerpt || 'No output captured.'}</pre></div><div><strong>Candidate output</strong><pre>{check.candidate.output_excerpt || 'No output captured.'}</pre></div></div>
+                    </details>;
+                  })}</div> : <div className="no-findings">No checks have been attached to this run yet.</div>}
                 </div>
               ) : (
                 <div className="empty-state"><div className="empty-state-icon"><ShieldCheck size={19} /></div><strong>{detailError || 'Evidence appears when a run finishes'}</strong><span>The check report compares the same configured commands on the base and candidate commits.</span></div>
@@ -360,7 +443,7 @@ function App() {
               )}
             </section>
           </div>
-          <footer className="page-footer" id="github-setup"><span>ChangeGuard</span><span>Evidence before release</span><span>{demoMode ? 'Fictional sample · read only' : 'v0.1 preview'}</span></footer>
+          <footer className="page-footer" id="github-setup"><span>DiffHarbor</span><span>Evidence before release</span><span>{demoMode ? 'Fictional sample · read only' : 'v0.1 preview'}</span></footer>
         </section>
       </main>
     </div>

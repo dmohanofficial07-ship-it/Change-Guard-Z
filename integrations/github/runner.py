@@ -150,6 +150,10 @@ def _findings(checks: list[dict]) -> list[dict]:
     for check in checks:
         baseline = check["baseline"]
         candidate = check["candidate"]
+        # A timeout or skipped command is not a pass/fail comparison. Keep it
+        # out of the regression findings; the dashboard labels it inconclusive.
+        if baseline.get("status") not in {"passed", "failed"} or candidate.get("status") not in {"passed", "failed"}:
+            continue
         if baseline["status"] == "passed" and candidate["status"] != "passed":
             category, severity, title = "regression", "high", f"{check['name']} fails on the candidate"
             confidence = 0.95

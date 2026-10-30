@@ -22,7 +22,7 @@ def _headers(token: str) -> dict[str, str]:
         "Accept": "application/vnd.github+json",
         "Authorization": f"Bearer {token}",
         "X-GitHub-Api-Version": API_VERSION,
-        "X-GitHub-Integration-Version": "changeguard/0.1",
+        "X-GitHub-Integration-Version": "diffharbor/0.1",
     }
 
 

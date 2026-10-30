@@ -1,1 +1,1 @@
-"""ChangeGuard API package."""
+"""DiffHarbor API package."""

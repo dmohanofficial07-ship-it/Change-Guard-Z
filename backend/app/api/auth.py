@@ -43,7 +43,7 @@ def _decrypt_token(token: str) -> str:
 def _callback_url() -> str:
     public_url = get_settings().changeguard_public_url
     if not public_url:
-        raise HTTPException(status_code=503, detail="ChangeGuard public URL is not configured.")
+        raise HTTPException(status_code=503, detail="DiffHarbor public URL is not configured.")
     return f"{public_url.rstrip('/')}/api/auth/github/callback"
 
 
