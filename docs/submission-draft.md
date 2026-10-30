@@ -8,7 +8,9 @@
 
 **Demo video:** Record the walkthrough in [hackathon-demo.md](hackathon-demo.md), within the event's two-minute limit.
 
-**Public demo link:** Add the permanent Render URL after creating the Static Site from `render.yaml` (open its `/demo` path and confirm it loads before submitting).
+**Live project link:** Add the Cloudflare Worker URL after deploying the live service (sign in and connect a public repository to show real data).
+
+**Sample walkthrough:** The same Cloudflare Worker URL with `/demo` shows the read-only fictional example. The existing Render Static Site from `render.yaml` remains a separate sample host.
 
 ## Project explanation
 
@@ -22,7 +24,7 @@ I used Wispr Flow to describe the work problem, dictate requirements, and give f
 
 ## Final checks before submission
 
-- Add the judge-accessible demo URL.
+- Add the judge-accessible Cloudflare Worker URL and confirm both `/` and `/demo` load.
 - Attach a demo video under two minutes.
 - Attach the usage card screenshot from the desktop app's Insights page.
 - Confirm the project and explanation match what you actually built and dictated.

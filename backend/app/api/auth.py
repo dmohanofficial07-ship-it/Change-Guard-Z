@@ -41,7 +41,7 @@ def _decrypt_token(token: str) -> str:
 
 
 def _callback_url() -> str:
-    public_url = get_settings().changeguard_public_url
+    public_url = get_settings().public_url
     if not public_url:
         raise HTTPException(status_code=503, detail="DiffHarbor public URL is not configured.")
     return f"{public_url.rstrip('/')}/api/auth/github/callback"
@@ -135,7 +135,7 @@ async def get_accessible_installation_repositories(user: GitHubUser, session: As
                     installations[installation_id].update(
                         int(repository["id"])
                         for repository in repositories_payload.get("repositories", [])
-                        if repository.get("id") is not None
+                        if repository.get("id") is not None and repository.get("private") is False
                     )
                     next_repositories_page = repositories_response.links.get("next", {}).get("url")
                     if not next_repositories_page:
@@ -238,7 +238,7 @@ async def github_callback(
 
     request.session.clear()
     request.session["github_user_id"] = user_id
-    return RedirectResponse(settings.frontend_origin, status_code=302)
+    return RedirectResponse(settings.web_origin, status_code=302)
 
 
 @router.get("/me")

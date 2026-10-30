@@ -74,6 +74,18 @@ def run_command(name: str, command: str, directory: Path, deadline: float) -> di
     remaining = max(1, int(deadline - time.monotonic()))
     timeout = min(MAX_COMMAND_SECONDS, remaining)
     started = time.monotonic()
+    # Candidate test code is untrusted. Keep the GitHub Actions OIDC minting
+    # endpoint and runtime credentials out of its subprocess environment.
+    blocked_environment = {
+        "ACTIONS_RUNTIME_TOKEN",
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+    }
+    child_environment = {
+        key: value
+        for key, value in os.environ.items()
+        if key not in blocked_environment and not key.startswith("ACTIONS_ID_TOKEN_")
+    }
     try:
         result = subprocess.run(
             command,
@@ -84,7 +96,7 @@ def run_command(name: str, command: str, directory: Path, deadline: float) -> di
             capture_output=True,
             timeout=timeout,
             check=False,
-            env={**os.environ, "CI": "true", "PYTHONUNBUFFERED": "1"},
+            env={**child_environment, "CI": "true", "PYTHONUNBUFFERED": "1"},
         )
         output = redact(f"{result.stdout}\n{result.stderr}")
         return {

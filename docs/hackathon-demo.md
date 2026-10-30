@@ -7,7 +7,7 @@ DiffHarbor checks a proposed backend change before a team accepts it. This demo 
 ## Links
 
 - [DiffHarbor source](https://github.com/dmohanofficial07-ship-it/Change-Guard-Z)
-- Public read-only sample dashboard: add the permanent Render URL after creating the Static Site from `render.yaml`.
+- Cloudflare live dashboard: add its Worker URL after deployment. Use `/` for GitHub sign-in and real public-repository runs, or `/demo` for the fictional, read-only walkthrough.
 - [Unmerged demo pull request #2](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2)
 - [DiffHarbor rehearsal that caught the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048481590)
 - [Backend CI run that failed on the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048482653)

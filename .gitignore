@@ -9,6 +9,9 @@
 .qodo/
 target-rehearsal/
 frontend/node_modules/
+cloudflare/node_modules/
+cloudflare/.wrangler/
+cloudflare/.dev.vars
 frontend/dist/
 backend/.pytest_cache/
 backend/.mypy_cache/

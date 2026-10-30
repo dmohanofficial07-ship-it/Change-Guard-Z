@@ -7,13 +7,11 @@ The first analyzer target is a Python backend. React/TypeScript and other framew
 ## Stack
 
 - React, TypeScript, and Vite for the dashboard.
-- FastAPI for the API.
-- PostgreSQL for installations, users, pull request runs, checks, and findings.
-- Redis and ARQ for webhook-triggered background jobs.
-- SQLAlchemy and Alembic for data access and schema migrations.
-- GitHub App webhooks for installation and pull request events.
-- GitHub Actions hosted runners for isolated base/candidate rehearsals.
-- Python AST analysis for the first impact graph.
+- A TypeScript Cloudflare Worker for the free hosted API, with D1 for records and Queues for background dispatch.
+- GitHub App OAuth and signed webhooks for account connection and pull request events.
+- Standard GitHub-hosted Actions runners for public repository checks. Private repositories are excluded from the free hosted path.
+- Python AST analysis and the trusted Python runner for comparing base and candidate commits.
+- FastAPI, PostgreSQL, Redis, and ARQ remain available as the local development/self-hosted path under `backend/`.
 
 ## Local development
 
@@ -57,23 +55,28 @@ Subscribe to the `installation`, `pull_request`, `pull_request_review`, and `wor
 
 Copy `integrations/github/analyzer.py` and `integrations/github/runner.py` into the target repository under `integrations/github/`. Copy `integrations/github/templates/changeguard-workflow.yml` to `.github/workflows/changeguard.yml` and `integrations/github/templates/changeguard.toml` to the repository root as `changeguard.toml`. Commit these files to the target's default branch, then install the GitHub App on the repository.
 
-The TOML file is read from the pull request's base commit. It declares the Python version and the checks to run. Commands execute on a temporary GitHub-hosted runner without production credentials. The report artifact is retained for three days in GitHub Actions; DiffHarbor stores structured checks, Python impact data, and findings in PostgreSQL.
+The TOML file is read from the pull request's base commit. It declares the Python version and the checks to run. Commands execute on a temporary GitHub-hosted runner without production credentials. Candidate code runs in a job without OIDC permission; a separate job publishes the structured result with a GitHub Actions identity token. Cloudflare verifies the repository and workflow, confirms the run with GitHub, then saves the evidence in D1.
 
-Some integration identifiers intentionally retain the original `changeguard` prefix for compatibility with the existing GitHub installation and repository setup. This includes environment variables, the `changeguard.toml` config file, and workflow/artifact identifiers. The API accepts both the old and new workflow display names.
+Some integration identifiers intentionally retain the original `changeguard` prefix for compatibility with the existing GitHub installation and repository setup. This includes environment variables, the `changeguard.toml` config file, and workflow inputs. The API accepts both the old and new workflow display names.
 
 ## Current boundaries
 
 - The dashboard and API require GitHub sign-in for pull request data.
+- The hosted Cloudflare deployment runs public repositories only. Private repository checks are not queued, keeping the GitHub Actions path in the no-cost public-runner category.
 - The first analyzer follows Python imports and recognizes common decorator-based routes. It reports its method and parse errors; the graph is not a complete proof of runtime behavior.
 - The target repository must define `changeguard.toml` and safe test commands on its base branch.
-- The GitHub App, webhook URL, runner workflow, and services need real credentials and a reachable deployment before live PR runs can be exercised.
+- Cloudflare Free and GitHub public-runner limits apply. If a free quota is reached, checks or dashboard requests can fail until the quota resets.
 
 ## Hackathon demo
 
 See the [90-second demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
 
-The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The Render static-site definition below publishes this judge demo without depending on your computer or any private service.
+The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The separate static-site definition in `render.yaml` can publish this judge demo without depending on your computer or any private service.
 
 ## Publish the public judge demo
 
-The public `/demo` page is a static, read-only showcase. It uses fictional rehearsal data and does not require the API, PostgreSQL, Redis, GitHub sign-in, or secrets. A Render Static Site can host it independently from the private GitHub-connected service. The repository includes `render.yaml` for the demo service; connect this repository in Render and create the Blueprint. The deployed site will publish a permanent HTTPS link and redeploy from the configured branch. Live repository rehearsals still require the separately configured backend and worker.
+The public `/demo` page is a static, read-only showcase. It uses fictional rehearsal data and does not require the API, storage, GitHub sign-in, or secrets. The existing `render.yaml` is only for that demo. The full public-repository app is deployed separately to Cloudflare Free and includes `/demo` as well as the GitHub-connected workspace.
+
+## Deploy the live user-facing service
+
+Follow [`docs/live-service-setup.md`](docs/live-service-setup.md) to deploy the GitHub-connected app on Cloudflare Free, configure secrets and the GitHub App URLs, and connect a public Python repository.

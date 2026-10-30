@@ -20,6 +20,10 @@ on:
         description: Candidate commit SHA
         required: true
         type: string
+      diffharbor_url:
+        description: DiffHarbor service URL for this rehearsal
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -32,8 +36,12 @@ jobs:
   rehearse:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    outputs:
+      report_gzip_base64: ${{ steps.collect-report.outputs.report_gzip_base64 }}
+    permissions:
+      contents: read
     steps:
-      - name: Check out trusted DiffHarbor runner
+      - name: Check out trusted runner from the target default branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.repository.default_branch }}
@@ -86,14 +94,29 @@ jobs:
             --run-id "$CHANGEGUARD_RUN_ID" \
             --output "$RUNNER_TEMP/changeguard-report.json"
 
-      - name: Upload structured rehearsal report
+      - name: Prepare report for the trusted publisher job
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: changeguard-report-${{ inputs.changeguard_run_id }}
-          path: ${{ runner.temp }}/changeguard-report.json
-          if-no-files-found: error
-          retention-days: 3
+        id: collect-report
+        env:
+          REPORT_PATH: ${{ runner.temp }}/changeguard-report.json
+        run: |
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "No completed report was available to publish."
+            exit 0
+          fi
+
+          report_size=$(wc -c < "$REPORT_PATH")
+          if [ "$report_size" -gt 524288 ]; then
+            echo "Report exceeds the 512 KiB publishing limit."
+            exit 1
+          fi
+
+          report_gzip_base64="$(gzip -c "$REPORT_PATH" | base64 -w 0)"
+          if [ "${#report_gzip_base64}" -gt 480000 ]; then
+            echo "Compressed report exceeds the GitHub job-output limit."
+            exit 1
+          fi
+          printf 'report_gzip_base64=%s\n' "$report_gzip_base64" >> "$GITHUB_OUTPUT"
 
       - name: Set workflow result from candidate checks
         if: always()
@@ -109,3 +132,30 @@ jobs:
           if report.get("summary", {}).get("status") != "passed":
               raise SystemExit(1)
           PY
+
+  publish:
+    needs: rehearse
+    if: always() && needs.rehearse.outputs.report_gzip_base64 != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+    steps:
+      - name: Publish signed report to DiffHarbor
+        env:
+          DIFFHARBOR_URL: ${{ inputs.diffharbor_url }}
+          CHANGEGUARD_RUN_ID: ${{ inputs.changeguard_run_id }}
+          REPORT_GZIP_BASE64: ${{ needs.rehearse.outputs.report_gzip_base64 }}
+          REPORT_PATH: ${{ runner.temp }}/changeguard-report.json
+        run: |
+          printf '%s' "$REPORT_GZIP_BASE64" | base64 --decode | gzip --decompress > "$REPORT_PATH"
+          set +x
+          token_url="${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=diffharbor"
+          identity_token="$(curl --fail --silent --show-error \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "$token_url" | /usr/bin/python3 -c "import json, sys; print(json.load(sys.stdin)['value'])")"
+          curl --fail --silent --show-error \
+            -X POST "${DIFFHARBOR_URL%/}/api/runs/${CHANGEGUARD_RUN_ID}/report" \
+            -H "Authorization: Bearer ${identity_token}" \
+            -H "Content-Type: application/json" \
+            --data-binary "@${REPORT_PATH}"
