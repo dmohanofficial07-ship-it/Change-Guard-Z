@@ -7,6 +7,7 @@ ChangeGuard checks a proposed backend change before a team accepts it. This demo
 ## Links
 
 - [ChangeGuard source](https://github.com/dmohanofficial07-ship-it/Change-Guard-Z)
+- [Public read-only sample dashboard](https://larger-announcement-skirt-lawsuit.trycloudflare.com/demo) (temporary tunnel; available while the local app and tunnel are running)
 - [Unmerged demo pull request #2](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2)
 - [ChangeGuard rehearsal that caught the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048481590)
 - [Backend CI run that failed on the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048482653)
@@ -38,6 +39,7 @@ Show the ChangeGuard dashboard report: checks, impacted code, and any findings. 
 ## Before recording
 
 - Sign in to the dashboard and open the demo pull request in another tab.
+- For judges, use the public `/demo` link; it shows fictional data without GitHub sign-in.
 - Confirm the fixed commit's CI and ChangeGuard runs have completed; use their latest results.
 - Keep the pull request open and do not click Merge.
 - Record a real Wispr Flow usage card from your account for the hackathon submission. Do not claim or invent usage numbers in the video.

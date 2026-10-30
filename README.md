@@ -69,3 +69,5 @@ The TOML file is read from the pull request's base commit. It declares the Pytho
 ## Hackathon demo
 
 See the [90-second demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
+
+The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The shared preview uses a temporary tunnel, so keep the local services and tunnel running while it is being reviewed.

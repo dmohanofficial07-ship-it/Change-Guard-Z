@@ -48,7 +48,84 @@ type Finding = {
 };
 type RunDetail = Run & { check_results: CheckComparison[]; impact: Impact; findings: Finding[] };
 
+const DEMO_PR_URL = 'https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2';
+
+function sampleCheck(name: string, failed = false): CheckComparison {
+  const baseline: CheckResult = {
+    name,
+    status: 'passed',
+    exit_code: 0,
+    duration_seconds: 1.2,
+    output_excerpt: name === 'Backend tests' ? '3 passed' : 'Passed.',
+  };
+  const candidate: CheckResult = {
+    name,
+    status: failed ? 'failed' : 'passed',
+    exit_code: failed ? 1 : 0,
+    duration_seconds: 1.4,
+    output_excerpt: failed
+      ? 'FAILED test_risk_engine.py::test_coordinated_mule_signals_create_critical_score\nAssertionError: expected 100, received 111'
+      : name === 'Backend tests' ? '3 passed' : 'Passed.',
+  };
+  return { name, baseline, candidate };
+}
+
+function sampleRun(failed: boolean): RunDetail {
+  const id = failed ? 'sample-failed' : 'sample-fixed';
+  return {
+    id,
+    repository_owner: 'example-team',
+    repository_name: 'payments-api',
+    pull_request_number: 18,
+    pull_request_title: failed ? 'Risk score can exceed 100' : 'Restore the risk score limit',
+    status: failed ? 'failed' : 'passed',
+    workflow_url: null,
+    created_at: '2026-10-30T00:00:00Z',
+    check_results: [
+      sampleCheck('Install dependencies'),
+      sampleCheck('Ruff backend lint'),
+      sampleCheck('Backend tests', failed),
+      sampleCheck('Python compile'),
+      sampleCheck('Container image build'),
+    ],
+    impact: {
+      changed_files: ['backend/app/services/risk_engine.py'],
+      affected_files: ['backend/app/services/risk_engine.py', 'backend/app/routers/transactions.py'],
+      routes: [{
+        method: 'POST',
+        path: '/api/transactions/screen',
+        function: 'screen_transaction',
+        file_path: 'backend/app/routers/transactions.py',
+        line_start: 34,
+      }],
+      confidence: 'high',
+    },
+    findings: failed ? [{
+      id: 'sample-score-cap',
+      category: 'check_failure',
+      severity: 'high',
+      confidence: 1,
+      title: 'Backend test found a score above the limit',
+      description: 'The configured test expected a maximum score of 100 but received 111.',
+      file_path: 'backend/app/services/risk_engine.py',
+      line_start: 50,
+      evidence: { expected: 100, received: 111 },
+    }] : [],
+  };
+}
+
+const DEMO_DETAILS: Record<string, RunDetail> = {
+  'sample-failed': sampleRun(true),
+  'sample-fixed': sampleRun(false),
+};
+const DEMO_RUNS: Run[] = [DEMO_DETAILS['sample-failed'], DEMO_DETAILS['sample-fixed']].map(
+  ({ id, repository_owner, repository_name, pull_request_number, pull_request_title, status, workflow_url, created_at }) => ({
+    id, repository_owner, repository_name, pull_request_number, pull_request_title, status, workflow_url, created_at,
+  }),
+);
+
 function App() {
+  const demoMode = window.location.pathname === '/demo' || window.location.pathname.startsWith('/demo/');
   const [githubStatus, setGithubStatus] = useState<GitHubStatus | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -71,6 +148,12 @@ function App() {
   };
 
   useEffect(() => {
+    if (demoMode) {
+      setRuns(DEMO_RUNS);
+      setSelectedRunId('sample-failed');
+      return;
+    }
+
     fetch('/api/github/status')
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error('API unavailable'))))
       .then((data: GitHubStatus) => setGithubStatus(data))
@@ -97,7 +180,7 @@ function App() {
           .finally(() => setLoadingRuns(false));
       })
       .catch(() => setUser(null));
-  }, []);
+  }, [demoMode]);
 
   useEffect(() => {
     if (!selectedRunId) {
@@ -105,6 +188,13 @@ function App() {
       setDetailError(null);
       return;
     }
+    if (demoMode) {
+      setRunDetail(DEMO_DETAILS[selectedRunId] ?? null);
+      setLoadingDetail(false);
+      setDetailError(null);
+      return;
+    }
+
     const controller = new AbortController();
     setLoadingDetail(true);
     setDetailError(null);
@@ -118,11 +208,13 @@ function App() {
         if (!controller.signal.aborted) setLoadingDetail(false);
       });
     return () => controller.abort();
-  }, [selectedRunId]);
+  }, [selectedRunId, demoMode]);
 
   const installationUrl = githubStatus?.configured ? githubStatus.installation_url ?? undefined : undefined;
   const signInUrl = authStatus?.configured ? '/api/auth/github/login' : undefined;
-  const setupSteps = user
+  const setupSteps = demoMode
+    ? ['Choose a sample pull request', 'Review changed Python files and routes', 'Compare the checks before and after the fix']
+    : user
     ? ['Install the ChangeGuard GitHub App', 'Open a pull request in a Python backend repository', 'Review the rehearsal status and evidence']
     : ['Sign in with GitHub', 'Install ChangeGuard for a repository', 'Open a pull request to start a rehearsal'];
 
@@ -148,10 +240,10 @@ function App() {
         </nav>
 
         <div className="sidebar-bottom">
-          <div className="connection-status"><span className="status-dot" /> {user ? `Signed in as @${user.login}` : 'GitHub sign-in needed'}</div>
+          <div className="connection-status"><span className="status-dot" /> {demoMode ? 'Public sample · read-only' : user ? `Signed in as @${user.login}` : 'GitHub sign-in needed'}</div>
           <div className="profile-row">
-            {user?.avatar_url ? <img className="profile-avatar" src={user.avatar_url} alt="" /> : <div className="profile-avatar">{user?.login?.slice(0, 1).toUpperCase() ?? 'G'}</div>}
-            <div className="profile-copy"><strong>{user?.name || user?.login || 'GitHub user'}</strong><span>{user ? 'GitHub account' : 'Sign in to continue'}</span></div>
+            {demoMode ? <div className="profile-avatar">S</div> : user?.avatar_url ? <img className="profile-avatar" src={user.avatar_url} alt="" /> : <div className="profile-avatar">{user?.login?.slice(0, 1).toUpperCase() ?? 'G'}</div>}
+            <div className="profile-copy"><strong>{demoMode ? 'Sample workspace' : user?.name || user?.login || 'GitHub user'}</strong><span>{demoMode ? 'Fictional sample data' : user ? 'GitHub account' : 'Sign in to continue'}</span></div>
             {user && <button className="profile-menu" type="button" onClick={signOut} aria-label="Sign out of GitHub" title="Sign out"><LogOut size={14} /></button>}
           </div>
         </div>
@@ -160,17 +252,21 @@ function App() {
       <main className="main-content" id="home">
         <header className="topbar">
           <div className="breadcrumbs"><span>Workspace</span><span className="crumb-divider">/</span><strong>Pull requests</strong></div>
-          <div className="topbar-right"><span className="environment-pill"><span className="status-dot" /> {user ? 'GitHub connected' : signInUrl ? 'Sign in required' : 'Setup required'}</span><button className="help-button" type="button" aria-label="Help">?</button></div>
+          <div className="topbar-right"><span className={`environment-pill ${demoMode ? 'demo-indicator' : ''}`}><span className="status-dot" /> {demoMode ? 'Read-only sample' : user ? 'GitHub connected' : signInUrl ? 'Sign in required' : 'Setup required'}</span><button className="help-button" type="button" aria-label="Help">?</button></div>
         </header>
 
         <section className="page-content" id="pull-requests">
           <div className="eyebrow"><span className="eyebrow-line" /> CHANGE REHEARSAL</div>
           <div className="page-heading-row">
             <div>
-              <h1>Pull requests</h1>
-              <p className="page-intro">See what a change might affect before it reaches production.</p>
+              <h1>{demoMode ? 'Try a sample rehearsal' : 'Pull requests'}</h1>
+              <p className="page-intro">{demoMode ? 'Explore a fictional backend change that fails a check, then passes after a fix.' : 'See what a change might affect before it reaches production.'}</p>
             </div>
-            {user && installationUrl ? (
+            {demoMode ? (
+              <a className="primary-button" href={DEMO_PR_URL} target="_blank" rel="noreferrer">
+                <GitPullRequest size={16} /> View real demo PR <ArrowUpRight size={15} />
+              </a>
+            ) : user && installationUrl ? (
               <a className="primary-button" href={installationUrl} target="_blank" rel="noreferrer">
                 <GitPullRequest size={16} /> Install GitHub App <ArrowUpRight size={15} />
               </a>
@@ -187,13 +283,15 @@ function App() {
             <div className="setup-card-main">
               <div className="setup-icon"><GitPullRequest size={19} /></div>
               <div className="setup-copy">
-                <div className="setup-kicker">FIRST CONNECTION</div>
-                <h2 id="setup-title">{user ? 'Connect a repository to begin' : 'Sign in to connect your repositories'}</h2>
-                <p>ChangeGuard will compare a pull request with its base branch, map affected Python backend code, and run the approved checks on a temporary GitHub Actions runner.</p>
+                <div className="setup-kicker">{demoMode ? 'PUBLIC READ-ONLY DEMO' : 'FIRST CONNECTION'}</div>
+                <h2 id="setup-title">{demoMode ? 'Explore a sample failure and fix' : user ? 'Connect a repository to begin' : 'Sign in to connect your repositories'}</h2>
+                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'ChangeGuard will compare a pull request with its base branch, map affected Python backend code, and run the approved checks on a temporary GitHub Actions runner.'}</p>
                 <ol className="setup-steps">
                   {setupSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span>{step}</li>)}
                 </ol>
-                {user && installationUrl ? (
+                {demoMode ? (
+                  <a className="secondary-button" href={DEMO_PR_URL} target="_blank" rel="noreferrer">See the real GitHub example <ArrowUpRight size={15} /></a>
+                ) : user && installationUrl ? (
                   <a className="secondary-button" href={installationUrl} target="_blank" rel="noreferrer">Install on GitHub <ArrowUpRight size={15} /></a>
                 ) : !user && signInUrl ? (
                   <a className="secondary-button" href={signInUrl}>Sign in with GitHub <ArrowUpRight size={15} /></a>
@@ -202,7 +300,7 @@ function App() {
                 )}
               </div>
             </div>
-            <div className="setup-card-note"><span className="note-shield"><ShieldCheck size={16} /></span><span>Analysis runs in the repository’s CI environment. ChangeGuard reports evidence; your team makes the release decision.</span></div>
+            <div className="setup-card-note"><span className="note-shield"><ShieldCheck size={16} /></span><span>{demoMode ? 'Sample mode is read-only. It does not connect to GitHub or expose any real project data.' : 'Analysis runs in the repository’s CI environment. ChangeGuard reports evidence; your team makes the release decision.'}</span></div>
           </section>
 
           <div className="below-grid">
@@ -262,7 +360,7 @@ function App() {
               )}
             </section>
           </div>
-          <footer className="page-footer" id="github-setup"><span>ChangeGuard</span><span>Evidence before release</span><span>v0.1 preview</span></footer>
+          <footer className="page-footer" id="github-setup"><span>ChangeGuard</span><span>Evidence before release</span><span>{demoMode ? 'Fictional sample · read only' : 'v0.1 preview'}</span></footer>
         </section>
       </main>
     </div>

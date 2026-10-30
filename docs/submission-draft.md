@@ -8,7 +8,7 @@
 
 **Demo video:** Record the walkthrough in [hackathon-demo.md](hackathon-demo.md), within the event's two-minute limit.
 
-**Live demo link:** Add the judge-accessible URL after the public sample view is ready. The current dashboard asks visitors to sign in with GitHub.
+**Live demo link:** https://larger-announcement-skirt-lawsuit.trycloudflare.com/demo (temporary tunnel; keep the local app and tunnel running and recheck the link before submitting)
 
 ## Project explanation
 
