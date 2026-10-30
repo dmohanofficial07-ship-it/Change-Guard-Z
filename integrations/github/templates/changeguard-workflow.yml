@@ -1,0 +1,111 @@
+name: ChangeGuard rehearsal
+run-name: ChangeGuard rehearsal ${{ inputs.changeguard_run_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      changeguard_run_id:
+        description: ChangeGuard run identifier
+        required: true
+        type: string
+      pull_request_number:
+        description: Pull request number
+        required: true
+        type: string
+      base_sha:
+        description: Base commit SHA
+        required: true
+        type: string
+      head_sha:
+        description: Candidate commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: changeguard-${{ inputs.changeguard_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out trusted ChangeGuard runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: changeguard-control
+          persist-credentials: false
+
+      - name: Check out base commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.base_sha }}
+          path: baseline
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out pull request head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/pull/${{ inputs.pull_request_number }}/head
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read Python version from trusted base configuration
+        id: runtime
+        continue-on-error: true
+        env:
+          BASE_CONFIG: baseline/changeguard.toml
+        run: /usr/bin/python3 changeguard-control/integrations/github/runner.py --print-python-version "$BASE_CONFIG" >> "$GITHUB_OUTPUT"
+
+      - name: Set up repository Python version
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ steps.runtime.outputs.python_version || '3.12' }}
+
+      - name: Run backend impact analysis and checks
+        id: rehearsal
+        continue-on-error: true
+        env:
+          CHANGEGUARD_RUN_ID: ${{ inputs.changeguard_run_id }}
+          BASE_SHA: ${{ inputs.base_sha }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          /usr/bin/python3 changeguard-control/integrations/github/runner.py \
+            --base baseline \
+            --candidate candidate \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA" \
+            --config baseline/changeguard.toml \
+            --run-id "$CHANGEGUARD_RUN_ID" \
+            --output "$RUNNER_TEMP/changeguard-report.json"
+
+      - name: Upload structured rehearsal report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: changeguard-report-${{ inputs.changeguard_run_id }}
+          path: ${{ runner.temp }}/changeguard-report.json
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Set workflow result from candidate checks
+        if: always()
+        env:
+          REPORT_PATH: ${{ runner.temp }}/changeguard-report.json
+        run: |
+          /usr/bin/python3 - "$REPORT_PATH" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if report.get("summary", {}).get("status") != "passed":
+              raise SystemExit(1)
+          PY

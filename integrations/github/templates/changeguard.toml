@@ -1,0 +1,13 @@
+# Copy this file to the root of the target repository as changeguard.toml.
+# The configuration is read from the pull request's base commit, so a pull
+# request cannot silently remove its own checks.
+python_version = "3.12"
+install_command = "python -m pip install -r requirements.txt"
+# Optional: start and stop disposable dependencies for the test run.
+# setup_command = "docker compose up -d database"
+# cleanup_command = "docker compose down -v"
+
+[[checks]]
+name = "Backend test suite"
+command = "python -m pytest -q"
+directory = "."
