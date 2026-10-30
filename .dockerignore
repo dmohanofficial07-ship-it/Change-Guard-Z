@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+**/.env
+**/*.pem
+**/*.key
+**/.venv
+**/node_modules
+**/dist
+**/__pycache__
+**/*.py[cod]
+output
+target-rehearsal

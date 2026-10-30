@@ -77,3 +77,7 @@ The dashboard's `/demo` view contains clearly marked fictional results and does 
 ## Publish the public judge demo
 
 The public `/demo` page is a static, read-only showcase. It uses fictional rehearsal data and does not require the API, PostgreSQL, Redis, GitHub sign-in, or secrets. A Render Static Site can host it independently from the private GitHub-connected service. The repository includes `render.yaml` for the demo service; connect this repository in Render and create the Blueprint. The deployed site will publish a permanent HTTPS link and redeploy from the configured branch. Live repository rehearsals still require the separately configured backend and worker.
+
+## Deploy the live user-facing service
+
+The separate [`render-live.yaml`](render-live.yaml) and root `Dockerfile` define the actual GitHub-connected app, worker, Postgres database, and Redis-compatible queue. They are separate from the free sample deployment so the public demo remains available. This live stack uses paid Render service plans; review the plan and current pricing before creating it. Follow [`docs/live-service-setup.md`](docs/live-service-setup.md) for GitHub App URL configuration, secret entry, repository setup, and the first real pull request rehearsal.
