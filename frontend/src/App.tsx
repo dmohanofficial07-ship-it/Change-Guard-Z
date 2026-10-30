@@ -5,6 +5,7 @@ type GitHubStatus = {
   configured: boolean;
   installation_url: string | null;
   provider: string;
+  repository_policy?: string;
 };
 
 type AuthStatus = { configured: boolean };
@@ -282,8 +283,8 @@ function App() {
   const setupSteps = demoMode
     ? ['Choose a sample pull request', 'Review changed Python files and routes', 'Compare the checks before and after the fix']
     : user
-    ? ['Install the GitHub App on a selected repository', 'Add the workflow and check config to its default branch', 'Open a pull request and review the evidence']
-    : ['Sign in with GitHub', 'Install the GitHub App on a selected repository', 'Add the setup files, then open a pull request'];
+    ? ['Install the GitHub App on a public repository', 'Add the workflow and check config to its default branch', 'Open a pull request and review the evidence']
+    : ['Sign in with GitHub', 'Install the GitHub App on a public repository', 'Add the setup files, then open a pull request'];
   const checkSummary = runDetail ? summarizeChecks(runDetail.check_results) : null;
 
   return (
@@ -353,7 +354,7 @@ function App() {
               <div className="setup-copy">
                 <div className="setup-kicker">{demoMode ? 'PUBLIC READ-ONLY DEMO' : 'FIRST CONNECTION'}</div>
                 <h2 id="setup-title">{demoMode ? 'Explore a sample failure and fix' : user ? 'Connect a repository to begin' : 'Sign in to connect your repositories'}</h2>
-                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'Connect a Python repository, then add changeguard.toml and .github/workflows/changeguard.yml to its default branch. DiffHarbor will compare the pull request with its base, map affected Python code, and run the configured checks on a temporary GitHub Actions runner.'}</p>
+                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'Connect a public Python repository, then add changeguard.toml and .github/workflows/changeguard.yml to its default branch. DiffHarbor will compare the pull request with its base, map affected Python code, and run the configured checks on a temporary GitHub Actions runner. Private repositories are not run in the no-cost setup.'}</p>
                 <ol className="setup-steps">
                   {setupSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span>{step}</li>)}
                 </ol>

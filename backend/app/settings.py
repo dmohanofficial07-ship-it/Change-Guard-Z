@@ -1,5 +1,4 @@
 from functools import lru_cache
-import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -62,8 +61,7 @@ class Settings(BaseSettings):
         configured = self.changeguard_public_url
         if configured and configured.strip():
             return configured.strip().rstrip("/")
-        render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME")
-        return f"https://{render_hostname}" if render_hostname else None
+        return None
 
     @property
     def web_origin(self) -> str:

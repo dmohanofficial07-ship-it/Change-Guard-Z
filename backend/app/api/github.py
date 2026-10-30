@@ -217,6 +217,7 @@ async def github_status() -> dict[str, str | bool | None]:
         "configured": settings.github_app_ready,
         "installation_url": settings.github_install_url,
         "provider": "github",
+        "repository_policy": "public_only",
     }
 
 
@@ -258,9 +259,12 @@ async def github_webhook(
             run = await session.get(RehearsalRun, existing_delivery.run_id)
             if run and run.status == "queued" and run.workflow_run_id is None:
                 await queue.enqueue_job("dispatch_rehearsal", str(run.id), _job_id=f"dispatch:{run.id}")
-        elif event_name == "workflow_run" and action == "completed" and existing_delivery.run_id:
-            await queue.enqueue_job("collect_report", str(existing_delivery.run_id), _job_id=f"report-retry:{delivery_id}")
         return {"accepted": True, "duplicate": True, "run_id": str(existing_delivery.run_id) if existing_delivery.run_id else None}
+
+    if event_name == "pull_request" and (payload.get("repository") or {}).get("private") is not False:
+        session.add(WebhookDelivery(delivery_id=delivery_id, event_name=event_name, event_action=action))
+        await session.commit()
+        return {"accepted": True, "duplicate": False, "run_id": None, "reason": "public_repositories_only"}
 
     run_id: UUID | None = None
     installation_id: int | None = None
@@ -298,7 +302,4 @@ async def github_webhook(
     if should_dispatch and run_id:
         queue: ArqRedis = request.app.state.arq_pool
         await queue.enqueue_job("dispatch_rehearsal", str(run_id), _job_id=f"dispatch:{run_id}")
-    elif event_name == "workflow_run" and action == "completed" and run_id:
-        queue: ArqRedis = request.app.state.arq_pool
-        await queue.enqueue_job("collect_report", str(run_id), _job_id=f"report:{delivery_id}")
     return {"accepted": True, "duplicate": False, "run_id": str(run_id) if run_id else None}

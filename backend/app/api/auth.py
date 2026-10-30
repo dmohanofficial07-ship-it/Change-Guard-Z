@@ -135,7 +135,7 @@ async def get_accessible_installation_repositories(user: GitHubUser, session: As
                     installations[installation_id].update(
                         int(repository["id"])
                         for repository in repositories_payload.get("repositories", [])
-                        if repository.get("id") is not None
+                        if repository.get("id") is not None and repository.get("private") is False
                     )
                     next_repositories_page = repositories_response.links.get("next", {}).get("url")
                     if not next_repositories_page:

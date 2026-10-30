@@ -1,8 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from io import BytesIO
-import json
 from urllib.parse import quote
-from zipfile import BadZipFile, ZipFile
 
 import httpx
 import jwt
@@ -89,6 +86,7 @@ async def dispatch_rehearsal_workflow(
     base_sha: str,
     head_sha: str,
 ) -> dict[str, str | int | None]:
+    settings = get_settings()
     token = await create_installation_token(installation_id)
     encoded_workflow = quote(workflow_file, safe="")
     url = f"{API_URL}/repos/{quote(owner, safe='')}/{quote(repository, safe='')}/actions/workflows/{encoded_workflow}/dispatches"
@@ -103,6 +101,7 @@ async def dispatch_rehearsal_workflow(
                     "pull_request_number": str(pull_request_number),
                     "base_sha": base_sha,
                     "head_sha": head_sha,
+                    "diffharbor_url": settings.public_url or "",
                 },
             },
         )
@@ -113,43 +112,3 @@ async def dispatch_rehearsal_workflow(
         "workflow_run_id": payload.get("workflow_run_id"),
         "run_url": payload.get("html_url"),
     }
-
-
-async def download_rehearsal_report(
-    *,
-    installation_id: int,
-    owner: str,
-    repository: str,
-    workflow_run_id: int,
-    run_id: str,
-) -> dict:
-    token = await create_installation_token(installation_id)
-    headers = _headers(token)
-    repo_path = f"{quote(owner, safe='')}/{quote(repository, safe='')}"
-    async with httpx.AsyncClient(timeout=45, follow_redirects=True) as client:
-        response = await client.get(f"{API_URL}/repos/{repo_path}/actions/runs/{workflow_run_id}/artifacts", headers=headers)
-        if response.status_code != 200:
-            raise GitHubAPIError(f"GitHub could not list rehearsal artifacts (returned {response.status_code}).")
-        artifacts = response.json().get("artifacts", [])
-        expected_name = f"changeguard-report-{run_id}"
-        artifact = next((item for item in artifacts if item.get("name") == expected_name), None)
-        if artifact is None or artifact.get("expired"):
-            raise GitHubAPIError("The rehearsal report artifact was not available.")
-        if int(artifact.get("size_in_bytes", 0)) > 2 * 1024 * 1024:
-            raise GitHubAPIError("The rehearsal report artifact exceeded the 2 MB limit.")
-        download_url = artifact.get("archive_download_url")
-        if not download_url:
-            raise GitHubAPIError("GitHub did not provide a rehearsal report download URL.")
-        archive_response = await client.get(download_url, headers=headers)
-        if archive_response.status_code != 200 or len(archive_response.content) > 2 * 1024 * 1024:
-            raise GitHubAPIError("GitHub could not download the rehearsal report artifact.")
-
-    try:
-        with ZipFile(BytesIO(archive_response.content)) as archive:
-            accepted_names = {"report.json", "changeguard-report.json"}
-            report_info = next((item for item in archive.infolist() if item.filename.rsplit("/", 1)[-1] in accepted_names), None)
-            if report_info is None or report_info.file_size > 2 * 1024 * 1024:
-                raise GitHubAPIError("The rehearsal report JSON was missing or too large.")
-            return json.loads(archive.read(report_info).decode("utf-8"))
-    except (BadZipFile, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise GitHubAPIError("The rehearsal report artifact was invalid.") from exc
