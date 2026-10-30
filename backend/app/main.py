@@ -32,7 +32,7 @@ async def lifespan(application: FastAPI):
 
 
 app = FastAPI(
-    title="ChangeGuard API",
+    title="DiffHarbor API",
     description="API for change-impact analysis and safe pull-request rehearsals.",
     version="0.1.0",
     lifespan=lifespan,
@@ -60,4 +60,4 @@ app.include_router(runs_router)
 
 @app.get("/api/health", tags=["system"])
 async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "changeguard-api"}
+    return {"status": "ok", "service": "diffharbor-api"}

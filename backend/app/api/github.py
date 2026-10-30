@@ -186,8 +186,9 @@ async def _handle_workflow_run(session: AsyncSession, payload: dict) -> UUID | N
     if not isinstance(workflow_run, dict):
         return None
     display_title = str(workflow_run.get("display_title") or "")
-    prefix = "ChangeGuard rehearsal "
-    if not display_title.startswith(prefix):
+    prefixes = ("DiffHarbor rehearsal ", "ChangeGuard rehearsal ")
+    prefix = next((value for value in prefixes if display_title.startswith(value)), None)
+    if prefix is None:
         return None
     try:
         run_id = UUID(display_title.removeprefix(prefix).strip())

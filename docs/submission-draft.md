@@ -2,19 +2,19 @@
 
 **Track:** Builders
 
-**Project:** ChangeGuard
+**Project:** DiffHarbor
 
 **Project link:** https://github.com/dmohanofficial07-ship-it/Change-Guard-Z
 
 **Demo video:** Record the walkthrough in [hackathon-demo.md](hackathon-demo.md), within the event's two-minute limit.
 
-**Live demo link:** https://larger-announcement-skirt-lawsuit.trycloudflare.com/demo (temporary tunnel; keep the local app and tunnel running and recheck the link before submitting)
+**Public demo link:** Add the permanent Render URL after creating the Static Site from `render.yaml` (open its `/demo` path and confirm it loads before submitting).
 
 ## Project explanation
 
-Backend engineers often have to check changes to older services without a safe rehearsal environment. ChangeGuard connects to GitHub pull requests, maps changed Python code to related files and routes, and runs the repository's approved checks against the current and proposed versions on a temporary GitHub Actions runner. It puts the evidence in a dashboard so the team can fix problems before accepting a change. The engineer still decides whether to merge, and the repository's own deployment process controls what goes live.
+Backend engineers often have to check changes to older services without a safe rehearsal environment. DiffHarbor connects to GitHub pull requests, maps changed Python code to related files and routes, and runs the repository's approved checks against the current and proposed versions on a temporary GitHub Actions runner. It puts the evidence in a dashboard so the team can fix problems before accepting a change. The engineer still decides whether to merge, and the repository's own deployment process controls what goes live.
 
-In our demonstration, removing a 100-point transaction-risk score limit caused an existing backend test to fail. Restoring the limit made both the backend CI and ChangeGuard rehearsal pass. The pull request remains open and unmerged.
+In our demonstration, removing a 100-point transaction-risk score limit caused an existing backend test to fail. Restoring the limit made both the backend CI and DiffHarbor rehearsal pass. The pull request remains open and unmerged.
 
 ## How I used Wispr Flow
 
