@@ -100,14 +100,16 @@ In the GitHub App's **General** settings, set:
 
 Keep the webhook events listed above. The app is now Public, so judges can [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on repositories they own or are allowed to connect. At installation time, they review its requested permissions and choose repository access. Organization installations may require an organization owner’s approval. GitHub does not allow a public app to be made private again while external accounts have it installed; see the [judge guide](judge-guide.md) for the current constraints.
 
-## Connect a public Python repository
+## Connect a public repository
 
-1. Sign in through the Cloudflare Worker and install the GitHub App on one public Python repository.
+1. Sign in through the Cloudflare Worker and install the GitHub App on one public repository.
 2. Add `changeguard.toml` and `.github/workflows/changeguard.yml` to the repository's default branch. Copy the current files from `integrations/github/templates/`.
 3. Confirm the workflow has the `diffharbor_url` workflow-dispatch input, the `id-token: write` permission, and the **Publish signed report to DiffHarbor** step. Older copies of the workflow must be updated to include them.
 4. Open a same-repository pull request. The app schedules it and the dashboard shows its real check and impact evidence. Pull requests from forks wait for an approval by a repository collaborator with write or admin permission.
 
 Private repository pull requests are acknowledged by the webhook but never queued or run. The API also excludes private repositories from the signed-in user's visible workspace. To protect the free usage boundary, the Worker rejects report callbacks unless the signed GitHub Actions token identifies the expected public repository, workflow file, default branch, and run, then confirms the run with GitHub's API.
+
+Python is the fully validated analyzer path. The runner can execute other languages' configured shell checks when the target workflow provides the needed runtime, but it does not build impact maps for non-Python code. See the [judge guide](judge-guide.md) for examples and current limitations.
 
 ## Local development
 

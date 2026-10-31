@@ -407,7 +407,7 @@ function App() {
               <div className="setup-copy">
                 <div className="setup-kicker">{demoMode ? 'PUBLIC READ-ONLY DEMO' : 'FIRST CONNECTION'}</div>
                 <h2 id="setup-title">{demoMode ? 'Explore a sample failure and fix' : user ? 'Connect a repository to begin' : 'Sign in to connect your repositories'}</h2>
-                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'Connect a public Python repository, then add changeguard.toml and .github/workflows/changeguard.yml to its default branch. DiffHarbor will compare the pull request with its base, map affected Python code, and run the configured checks on a temporary GitHub Actions runner. Private repositories are not run in the no-cost setup.'}</p>
+                <p>{demoMode ? 'These examples use fictional results. Select either run under Recent activity to compare the failed change with its fix. This page does not read GitHub accounts, repositories, or saved runs.' : 'Connect a public GitHub repository, then add changeguard.toml and .github/workflows/changeguard.yml to its default branch. DiffHarbor compares configured checks on the base and proposed change. Python repositories also get a Python impact map; other languages need custom workflow runtime setup and get check comparisons only. Private repositories are not run in the no-cost setup.'}</p>
                 <ol className="setup-steps">
                   {setupSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span>{step}</li>)}
                 </ol>
@@ -438,8 +438,8 @@ function App() {
                 <div className="help-faq">
                   <h3>Frequently asked questions</h3>
                   <details><summary>Can I explore the sample without signing in?</summary><p>Yes. The read-only sample uses fictional results and does not connect to GitHub. To use the real workflow with your own repository, sign in with your GitHub account.</p></details>
-                  <details><summary>Does the live workflow require GitHub sign-in?</summary><p>Yes. Sign in with your own GitHub account, then install the DiffHarbor app on a public Python repository you control or are allowed to connect.</p></details>
-                  <details><summary>Can I connect any kind of project?</summary><p>The current hosted preview analyzes public Python repositories. Other project types need their own analyzer.</p></details>
+                  <details><summary>Does the live workflow require GitHub sign-in?</summary><p>Yes. Sign in with your own GitHub account, then install the DiffHarbor app on a public repository you control or are allowed to connect.</p></details>
+                  <details><summary>Can I connect a non-Python project?</summary><p>You can configure shell commands for its tests, such as npm test or go test, if its runtime is available in the repository workflow. DiffHarbor currently maps Python impact only; other languages get check comparisons but no language-specific impact map.</p></details>
                   <details><summary>What does impact analysis tell me?</summary><p>It maps changed Python modules to affected files and common decorator-based API routes. It is a useful map, not a complete proof of runtime behavior.</p></details>
                   <details><summary>Does DiffHarbor merge or deploy my change?</summary><p>No. It reports check results and evidence. Your team decides whether to merge or release.</p></details>
                   <details><summary>Where can I find the setup guide?</summary><p><a href={README_JUDGE_GUIDE_URL} target="_blank" rel="noreferrer">Open the judge quick start and setup links <ArrowUpRight size={13} /></a></p></details>

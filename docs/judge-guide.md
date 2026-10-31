@@ -12,13 +12,13 @@ This guide explains what the live hackathon preview does, what it does not do, t
 
 ### Current GitHub App access
 
-As checked on 31 October 2026, the [ChangeGuard Northstar GitHub App](https://github.com/apps/changeguard-northstar) is **public**. Judges can [start installing it](https://github.com/apps/changeguard-northstar/installations/new) on a public Python repository they own or are allowed to connect. They review the requested permissions and choose which repositories to connect; organization installations may require an organization owner’s approval. GitHub says a public app cannot be made private while it is installed on other accounts. [GitHub visibility instructions](https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration)
+As checked on 31 October 2026, the [ChangeGuard Northstar GitHub App](https://github.com/apps/changeguard-northstar) is **public**. Judges can [start installing it](https://github.com/apps/changeguard-northstar/installations/new) on a public repository they own or are allowed to connect. They review the requested permissions and choose which repositories to connect; organization installations may require an organization owner’s approval. GitHub says a public app cannot be made private while it is installed on other accounts. [GitHub visibility instructions](https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration)
 
 Public visibility makes the app installable by other GitHub accounts; it does not publish its private key. At installation time, each account reviews the permissions and selects which repositories to connect. Organization installations may require an organization owner to approve the app. [GitHub App installation guide](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party)
 
 ## What happens in a real rehearsal
 
-1. A user signs in with GitHub and installs the app on a public Python repository they own or are allowed to connect.
+1. A user signs in with GitHub and installs the app on a public repository they own or are allowed to connect. Python is the fully validated analyzer path; other languages can supply custom test commands and runtime setup.
 2. The repository's default branch contains `changeguard.toml` and `.github/workflows/changeguard.yml`. The TOML file lists the checks the repository wants to run.
 3. A non-draft pull request triggers a rehearsal. Same-repository pull requests are dispatched automatically. A pull request from a fork waits for an approval by a repository collaborator with write or admin permission, for the current head commit.
 4. GitHub Actions checks out the base and proposed commits on a temporary GitHub-hosted runner and runs the configured checks against both.
@@ -31,7 +31,8 @@ Public visibility makes the app installable by other GitHub accounts; it does no
 | GitHub provider | The hosted service uses a GitHub App, GitHub OAuth, GitHub webhooks, and GitHub Actions. It is not a GitLab, Bitbucket, or GitHub Enterprise Server integration. | Use a GitHub.com account and repository. |
 | App visibility | The app is public as of 31 October 2026. | Judges can install it, review the permissions, and select repositories. |
 | Repository visibility | The hosted worker only queues pull requests from public repositories. Private repositories are not processed in the no-cost preview. | Use a public repository. This boundary keeps checks on GitHub's standard public-repository runners. |
-| Language and analysis | The first analyzer handles Python. It parses Python ASTs, follows statically recognizable imports, and looks for common decorator-based HTTP routes. | Non-Python code is not mapped. Dynamic imports, runtime wiring, generated routes, and behavior that cannot be inferred from syntax may be missed. The impact graph is a helpful map, not proof of runtime behavior. |
+| Language support | The runner compares configured shell commands on the base and candidate commits. The workflow includes a Python helper runtime; another language may run if its runtime is available or added to the target workflow. | Python is the only fully validated analyzer path. Other-language tests may run with custom setup, but DiffHarbor does not map their files, imports, or routes. Do not describe this release as turnkey support for every language. |
+| Python impact map | The analyzer parses Python ASTs, follows statically recognizable imports, and looks for common decorator-based HTTP routes. | Dynamic imports, runtime wiring, generated routes, and behavior that cannot be inferred from syntax may be missed. The map is useful review evidence, not proof of runtime behavior. |
 | Repository setup | The default branch must contain `changeguard.toml` and the workflow template at `.github/workflows/changeguard.yml`. The check configuration is read from the pull request's base commit. | Add and commit these files before opening the pull request. The PR cannot remove its own checks by changing its copy of the TOML file. |
 | Configured commands | The repository owner chooses shell commands in the base-branch TOML file. There must be 1–20 checks; the TOML file is at most 128 KiB; a command is at most 2,000 characters. | Only install the app on a repository whose code and check commands you trust. Commands are executable code, not declarative test names. |
 | Time and output | Each command has a 15-minute maximum; the baseline and candidate checks share a 30-minute runner budget. Logs are limited to the last 5,000 characters per command after best-effort redaction. The report is limited to 512 KiB raw and 480,000 characters when compressed/base64-encoded for publishing. | Long test suites or very large reports can time out or fail to publish. Split or optimize checks if they exceed the limits. |
@@ -65,7 +66,11 @@ No. `/demo` is read-only and uses fictional results. GitHub sign-in is required 
 
 ### Can I try my own repository without installing local software?
 
-Yes, once the GitHub App is public. The work happens through the browser and GitHub.com: sign in, install the app on a public Python repo, add the two setup files to its default branch, and open a PR. No local Docker, database, Python environment, or Node setup is required for a judge.
+Yes. The GitHub App is public. The work happens through the browser and GitHub.com: sign in, install the app on a public repository, add the two setup files to its default branch, and open a PR. No local Docker, database, Python environment, or Node setup is required for a judge. Use Python to see the full impact map; another language needs custom runtime setup and will show check comparisons only.
+
+### Does it work with JavaScript, Java, Go, or another language?
+
+The runner executes the shell commands in `changeguard.toml`, so a repository may run its own tests if the target workflow makes the needed runtime available. For example, the command could be `npm test`, `go test ./...`, or `mvn test`. The provided workflow is Python-centered, so another stack may need a workflow setup step for its runtime. DiffHarbor's impact analysis currently understands Python only; it does not yet trace JavaScript, Java, Go, or other languages. This is partial custom-check compatibility, not universal language support.
 
 ### What permissions does the app request, and why?
 
@@ -117,7 +122,7 @@ The project can return errors, stop accepting database work, or leave a run wait
 
 ### Can an organization connect its repo?
 
-Potentially, if it is a public Python repository and an organization owner permits the app installation. Organization policies may require approval. DiffHarbor does not override those GitHub controls.
+Potentially, if it is a public repository and an organization owner permits the app installation. Python gets the full impact map; other languages need configured runtimes and receive check comparisons only. Organization policies may require approval. DiffHarbor does not override those GitHub controls.
 
 ## Provider references
 
