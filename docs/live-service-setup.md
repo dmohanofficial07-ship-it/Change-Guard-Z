@@ -98,7 +98,7 @@ In the GitHub App's **General** settings, set:
 - Webhook URL: `<worker-url>/api/github/webhook`.
 - Webhook secret: the same value as the Cloudflare `GITHUB_WEBHOOK_SECRET` secret.
 
-Keep the webhook events listed above. To let judges install the app, set its visibility to Public in **GitHub → Settings → Developer settings → GitHub Apps → ChangeGuard Northstar → Advanced → Danger zone → Make public**. A public app can be installed by other GitHub accounts; at install time they review its requested permissions and choose repository access. Only connect repositories the installer owns or is allowed to connect. GitHub does not allow a public app to be made private again while external accounts have it installed; see the [judge guide](judge-guide.md) before changing visibility.
+Keep the webhook events listed above. The app is now Public, so judges can [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on repositories they own or are allowed to connect. At installation time, they review its requested permissions and choose repository access. Organization installations may require an organization owner’s approval. GitHub does not allow a public app to be made private again while external accounts have it installed; see the [judge guide](judge-guide.md) for the current constraints.
 
 ## Connect a public Python repository
 
