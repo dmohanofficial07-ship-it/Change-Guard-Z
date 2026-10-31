@@ -7,34 +7,39 @@ DiffHarbor checks a proposed backend change before a team accepts it. This demo 
 ## Links
 
 - [DiffHarbor source](https://github.com/dmohanofficial07-ship-it/Change-Guard-Z)
-- Cloudflare live dashboard: add its Worker URL after deployment. Use `/` for GitHub sign-in and real public-repository runs, or `/demo` for the fictional, read-only walkthrough.
+- [Cloudflare live dashboard](https://diffharbor-live.diffharbor-cloudflare.workers.dev): use `/` for GitHub sign-in and real public-repository runs, or `/demo` for the fictional, read-only walkthrough.
+- [Judge guide: constraints, setup, safety, and FAQs](judge-guide.md)
 - [Unmerged demo pull request #2](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2)
 - [DiffHarbor rehearsal that caught the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048481590)
 - [Backend CI run that failed on the regression](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048482653)
 - [DiffHarbor rehearsal after the fix](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048764900)
 - [Backend CI after the fix](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048765198)
 
-## 90-second walkthrough
+## 2-minute walkthrough
 
-**0:00–0:15 — The problem**
+**0:00–0:20 — The problem**
 
-“When backend changes are checked manually or directly against a live system, a small mistake can disrupt normal work. DiffHarbor gives the team a rehearsal before they accept a change.”
+“A small backend change can break a route or return the wrong result. Teams often discover that after merging or by manually testing a live system. DiffHarbor gives them a rehearsal before they accept a change.”
 
-**0:15–0:30 — The proposed change**
+**0:20–0:40 — The proposed change**
 
-Open pull request #2 and show its commit history. Explain that one commit temporarily removed the score limit and the next restored it. Keep the pull request unmerged.
+Open pull request #2 and show its commit history. Explain that one commit temporarily removed the risk score limit and the follow-up commit restored it. Keep the pull request unmerged.
 
-**0:30–0:50 — The failure**
+**0:40–1:05 — The failure**
 
-Open the failed DiffHarbor rehearsal and the backend CI run. Point out that the backend test failed because the score went above 100, while the container build passed. DiffHarbor reports the candidate result; it does not merge or deploy code.
+Open the failed DiffHarbor rehearsal and the backend CI run. Point out that the backend test failed because the score went above 100, while the container build passed. Show how the dashboard separates the new failure from checks that still pass.
 
-**0:50–1:10 — The fix**
+**1:05–1:25 — The fix**
 
 Show the follow-up commit that restores the limit and the checks for that commit. Wait for the latest DiffHarbor and CI runs to complete before recording this section, then show their final results.
 
-**1:10–1:30 — The dashboard and scope**
+**1:25–1:50 — The dashboard and scope**
 
-Show the DiffHarbor dashboard report: checks, impacted code, and any findings. Close with: “Today this version supports Python backends. Other languages need their own analyzer and checks. A person still decides whether to merge, and the repository’s separate deployment process controls what goes live.”
+Show the dashboard's impact map, check comparison, Activity page, and Help & FAQ. Explain that the hosted preview supports public Python repositories and does not merge or deploy. A person still makes the release decision.
+
+**1:50–2:00 — Close**
+
+“DiffHarbor makes the possible impact and check evidence easier to review before a change is merged. The live demo and all current limits are documented in the repository.”
 
 ## Before recording
 

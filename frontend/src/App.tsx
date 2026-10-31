@@ -34,7 +34,7 @@ type CheckSummary = { title: string; description: string; tone: 'danger' | 'warn
 type PageName = 'pull-requests' | 'impact' | 'activity' | 'help' | 'run-detail';
 type ThemeName = 'light' | 'dark';
 
-const README_JUDGE_GUIDE_URL = 'https://github.com/dmohanofficial07-ship-it/Change-Guard-Z#judge-quick-start';
+const README_JUDGE_GUIDE_URL = 'https://github.com/dmohanofficial07-ship-it/Change-Guard-Z/blob/main/docs/judge-guide.md';
 const SETUP_GUIDE_URL = 'https://github.com/dmohanofficial07-ship-it/Change-Guard-Z/blob/main/docs/live-service-setup.md';
 
 function readRoute(pathname: string): { demo: boolean; page: PageName; runId: string | null } {

@@ -9,10 +9,10 @@ DiffHarbor rehearses risky changes to legacy Python backends. It connects GitHub
 >
 > - [Open the live read-only demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo). No GitHub account is needed to explore it; the sample results are fictional.
 > - To try the live workflow with a repository you control, open the [GitHub-connected workspace](https://diffharbor-live.diffharbor-cloudflare.workers.dev) and sign in with **your own GitHub account**. You do not need the project owner's account.
-> - The GitHub App must be publicly installable before judges can connect their own accounts. The owner should confirm this in **GitHub → Settings → Developer settings → GitHub Apps → ChangeGuard Northstar → General → App visibility**. Once public installation is enabled, [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on a public Python repository you own or are allowed to connect. Review the requested GitHub permissions on the installation page.
+> - **Current install status (31 October 2026): Private.** The demo is public, but judges cannot install the app on their own repositories until the owner changes it to Public in **GitHub → Settings → Developer settings → GitHub Apps → ChangeGuard Northstar → Advanced → Danger zone → Make public**. Once public, [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on a public Python repository you own or are allowed to connect. Review the requested permissions. GitHub does not let a public app return to private while it is installed on other accounts.
 > - For a real rehearsal, add [`changeguard.toml`](integrations/github/templates/changeguard.toml) and [the workflow template](integrations/github/templates/changeguard-workflow.yml) to that repository's default branch, then open a pull request. The hosted free preview runs public repositories only.
 >
-> **Quick walkthrough:** [failure-and-fix demo PR](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2) · [setup guide](docs/live-service-setup.md)
+> **Quick walkthrough:** [failure-and-fix demo PR](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2) · [setup guide](docs/live-service-setup.md) · [judge constraints and FAQ](docs/judge-guide.md)
 
 The first analyzer target is a Python backend. React/TypeScript and other frameworks can be added as separate analyzers after this path works end to end.
 
@@ -81,7 +81,7 @@ Some integration identifiers intentionally retain the original `changeguard` pre
 
 ## Hackathon demo
 
-See the [90-second demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
+See the [2-minute demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
 
 The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The separate static-site definition in `render.yaml` can publish this judge demo without depending on your computer or any private service.
 

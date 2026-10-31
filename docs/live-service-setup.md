@@ -12,7 +12,7 @@ The existing read-only `/demo` page remains available as a fictional walkthrough
 - GitHub Actions checks the base and pull request commits on a temporary standard Ubuntu runner. The Python analyzer and runner are checked out from the target repository's default branch, separately from the pull request candidate.
 - Candidate tests run in a job without OIDC permission. A separate job publishes the report with a GitHub Actions identity token, and the Worker asks GitHub to confirm that token's run ID belongs to this rehearsal. The report is compressed between jobs and kept below GitHub's job-output size limit; no artifact storage is needed.
 
-Cloudflare Free currently includes 100,000 Worker requests per day and 10 ms CPU per HTTP request; D1 includes 5 million rows read/day, 100,000 rows written/day, and 5 GB of storage; Queues includes 10,000 operations/day with up to 24 hours of message retention. These are hard limits: requests can fail after limits are reached, but the Free plan does not automatically convert those overages into a paid bill. GitHub documents standard hosted runners as free and unlimited for public repositories. Review the [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/), [D1 pricing and limits](https://developers.cloudflare.com/d1/platform/pricing/), [Queues pricing](https://developers.cloudflare.com/queues/platform/pricing/), and [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions) before launch.
+As of 31 October 2026, Cloudflare Free includes 100,000 Worker requests per day and 10 ms CPU per HTTP request; D1 includes 5 million rows read/day, 100,000 rows written/day, and 5 GB of storage; Queues includes 10,000 operations/day and 24-hour message retention. These are hard limits. Worker or D1 requests can fail after daily limits are reached; the free service does not automatically upgrade to a paid plan. GitHub documents standard hosted runners as free and unlimited for public repositories. Review the [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/), [D1 pricing and limits](https://developers.cloudflare.com/d1/platform/pricing/), [Queues pricing](https://developers.cloudflare.com/queues/platform/pricing/), and [GitHub Actions runner policy](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) before launch.
 
 ## Before you begin
 
@@ -98,7 +98,7 @@ In the GitHub App's **General** settings, set:
 - Webhook URL: `<worker-url>/api/github/webhook`.
 - Webhook secret: the same value as the Cloudflare `GITHUB_WEBHOOK_SECRET` secret.
 
-Keep the webhook events listed above. Make the App available for installation on other accounts only if other users need to try it. Each person should install it only on a repository they own or are permitted to connect.
+Keep the webhook events listed above. To let judges install the app, set its visibility to Public in **GitHub → Settings → Developer settings → GitHub Apps → ChangeGuard Northstar → Advanced → Danger zone → Make public**. A public app can be installed by other GitHub accounts; at install time they review its requested permissions and choose repository access. Only connect repositories the installer owns or is allowed to connect. GitHub does not allow a public app to be made private again while external accounts have it installed; see the [judge guide](judge-guide.md) before changing visibility.
 
 ## Connect a public Python repository
 
