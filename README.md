@@ -8,6 +8,7 @@ DiffHarbor rehearses risky pull requests before a team merges them. It compares 
 > **Judges: start here**
 >
 > - [Open the live read-only demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo). No GitHub account is needed to explore it; the sample results are fictional.
+> - [Play the 30-second animated dashboard guide](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help). Captions are included, with optional browser narration.
 > - To try the live workflow with a repository you control, open the [GitHub-connected workspace](https://diffharbor-live.diffharbor-cloudflare.workers.dev) and sign in with **your own GitHub account**. You do not need the project owner's account.
 > - **Current install status (31 October 2026): Public.** Judges can [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on a public GitHub repository they own or are allowed to connect. Review the requested permissions and select only the repository you want to connect. Organization installations may require an organization owner’s approval. GitHub does not let a public app return to private while it is installed on other accounts.
 > - For a real rehearsal, add [`changeguard.toml`](integrations/github/templates/changeguard.toml) and [the workflow template](integrations/github/templates/changeguard-workflow.yml) to that repository's default branch, then open a pull request. The hosted free preview runs public repositories only.

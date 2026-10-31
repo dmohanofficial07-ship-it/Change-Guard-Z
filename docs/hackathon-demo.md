@@ -35,7 +35,7 @@ Show the follow-up commit that restores the limit and the checks for that commit
 
 **1:25–1:50 — The dashboard and scope**
 
-Show the dashboard's impact map, check comparison, Activity page, and Help & FAQ. Explain that the hosted preview runs checks on public GitHub repositories, provides its full impact map for Python, and does not merge or deploy. Other language checks need custom runtime setup. A person still makes the release decision.
+Show the dashboard's impact map, check comparison, Activity page, and Help & FAQ. Play the short Tuli walkthrough so judges can understand the flow without reading the full guide. Explain that the hosted preview runs checks on public GitHub repositories, provides its full impact map for Python, and does not merge or deploy. Other language checks need custom runtime setup. A person still makes the release decision.
 
 **1:50–2:00 — Close**
 

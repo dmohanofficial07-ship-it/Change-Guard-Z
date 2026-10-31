@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Activity, ArrowUpRight, BookOpen, CircleHelp, GitPullRequest, LogOut, Moon, ShieldCheck, Sun, Waypoints } from 'lucide-react';
+import TuliExplainer from './TuliExplainer';
 
 type GitHubStatus = {
   configured: boolean;
@@ -429,6 +430,7 @@ function App() {
           <div className={`below-grid view-${page}`}>
             {page === 'help' && <section className="empty-panel help-center">
               <div className="panel-heading"><div><h3>Dashboard navigation</h3><p>Choose a section to see the matching part of a rehearsal.</p></div><BookOpen size={18} /></div>
+              <TuliExplainer />
               <div className="help-content">
                 <div className="help-guide">
                   <a href={pageHref(demoMode, 'pull-requests')}><GitPullRequest size={17} /><span><strong>Pull requests</strong><small>Start a sample rehearsal or connect a repository.</small></span><ArrowUpRight size={15} /></a>

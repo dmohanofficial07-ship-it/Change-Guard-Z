@@ -432,6 +432,57 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 
 .help-center { grid-column: 1 / -1; }
 .help-content { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; padding: 20px; }
+.tuli-explainer { margin: 0 20px 4px; overflow: hidden; border: 1px solid #e4e7f1; border-radius: 13px; background: linear-gradient(120deg, #f4f7ff, #f9fbff 55%, #f5faf9); }
+.tuli-explainer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 20px 12px; }
+.tuli-kicker { color: #6876ca; font: 700 9px 'DM Sans', sans-serif; letter-spacing: .13em; }
+.tuli-explainer-heading h3 { margin: 3px 0 0; color: #252e45; font: 700 19px 'Space Grotesk', sans-serif; }
+.tuli-duration { padding: 6px 9px; border: 1px solid #e0e5f4; border-radius: 999px; color: #68738a; background: #fff; font-size: 10px; font-weight: 700; }
+.tuli-stage { display: grid; grid-template-columns: 145px minmax(0, 1fr); align-items: center; gap: 18px; min-height: 190px; margin: 0 14px; padding: 16px 20px; border: 1px solid #e7eaf4; border-radius: 11px; background: #fff; }
+.tuli-mascot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #5964b6; font: 700 11px 'Space Grotesk', sans-serif; }
+.tuli-mascot svg { width: 86px; height: 99px; overflow: visible; animation: tuli-float 2.4s ease-in-out infinite; }
+.tuli-beam { fill: #f8dfa0; opacity: .8; animation: tuli-beam 2.4s ease-in-out infinite; }
+.tuli-roof { fill: #ed9e63; }
+.tuli-window { fill: #ffe4a4; stroke: #d9925e; stroke-width: 2; }
+.tuli-body { fill: #e9edf9; stroke: #6171c9; stroke-width: 3; stroke-linejoin: round; }
+.tuli-stripe { fill: #8795df; }
+.tuli-base { fill: #5968be; }
+.tuli-eye { fill: #2c3450; }
+.tuli-smile { fill: none; stroke: #2c3450; stroke-linecap: round; stroke-width: 1.8; }
+.tuli-glow { fill: #fff8d7; }
+.tuli-story { position: relative; max-width: 560px; }
+.tuli-scene-count { color: #7b86a1; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.tuli-story h4 { margin: 4px 0 5px; color: #252e45; font: 700 17px 'Space Grotesk', sans-serif; }
+.tuli-story > p { max-width: 500px; margin: 0; color: #667187; font-size: 12px; line-height: 1.6; }
+.tuli-visual-card { display: flex; align-items: center; gap: 11px; width: min(100%, 385px); margin-top: 14px; padding: 12px 13px; border: 1px solid #e7eaf4; border-radius: 9px; color: #5969c7; background: #fbfcff; animation: tuli-arrive .4s ease-out both; }
+.tuli-visual-card > div:not(.decision-checks) { display: grid; gap: 3px; }
+.tuli-visual-card strong { color: #33405e; font-size: 11px; }
+.tuli-visual-card span { color: #778198; font-size: 10px; }
+.visual-badge { margin-left: auto; padding: 5px 8px; border-radius: 999px; color: #4c5cb8 !important; background: #eef0ff; font-weight: 700; }
+.compare-visual { display: grid; grid-template-columns: 1fr 38px 1fr; align-items: center; gap: 8px; max-width: 430px; margin-top: 13px; animation: tuli-arrive .4s ease-out both; }
+.compare-branch { display: grid; gap: 8px; padding: 10px; border: 1px solid #e5e9f3; border-radius: 8px; background: #fbfcff; }
+.compare-branch > span { color: #7a8499; font-size: 9px; font-weight: 700; }
+.compare-branch strong { display: flex; align-items: center; gap: 5px; color: #328271; font-size: 10px; }
+.compare-branch.candidate strong { color: #5968bf; }
+.compare-connector { display: flex; justify-content: center; gap: 3px; }
+.compare-connector span { width: 4px; height: 4px; border-radius: 50%; background: #9ea9d7; }
+.decision-visual { justify-content: space-between; }
+.decision-checks { display: grid; gap: 5px; }
+.decision-checks span { display: flex; align-items: center; gap: 5px; color: #33816f; font-size: 9px; font-weight: 700; }
+.decision-checks .decision-fail { color: #c57745; }
+.decision-person { display: grid; justify-items: end; gap: 4px; padding-left: 10px; border-left: 1px solid #e5e9f3; }
+.tuli-controls { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 13px 20px 9px; }
+.tuli-progress { display: flex; align-items: center; gap: 6px; }
+.tuli-progress button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: #d9deeb; cursor: pointer; transition: width .2s, background .2s; }
+.tuli-progress button.done { background: #9aa6dc; }
+.tuli-progress button.active { width: 23px; background: #6675c9; }
+.tuli-buttons { display: flex; align-items: center; gap: 7px; }
+.tuli-buttons button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 11px; border: 1px solid #dfe4f1; border-radius: 8px; color: #5c6780; background: #fff; font-size: 10px; font-weight: 700; cursor: pointer; }
+.tuli-buttons .tuli-play { border-color: #596ac5; color: #fff; background: #596ac5; }
+.tuli-buttons .tuli-narration.enabled { color: #4d5cb4; background: #f1f3ff; }
+.tuli-footnote { margin: 0; padding: 0 20px 14px; color: #78839a; font-size: 9px; }
+@keyframes tuli-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes tuli-beam { 0%, 100% { opacity: .45; } 50% { opacity: .95; } }
+@keyframes tuli-arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .help-guide { display: grid; align-content: start; gap: 9px; }
 .help-guide > a { display: grid; grid-template-columns: 20px 1fr 16px; align-items: center; gap: 11px; padding: 13px; border: 1px solid #e7e9f2; border-radius: 10px; color: #5968d8; background: #fcfcff; }
 .help-guide > a:hover { border-color: #cbd0f2; background: #f6f7ff; }
@@ -474,6 +525,13 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 .theme-dark .help-guide > a:hover { background: #272d45; }
 .theme-dark .help-guide strong, .theme-dark .help-faq summary { color: #e1e5f2; }
 .theme-dark .help-guide small { color: #a6afc3; }
+.theme-dark .tuli-explainer { border-color: #343b50; background: linear-gradient(120deg, #202638, #1b2232 55%, #1c282e); }
+.theme-dark .tuli-explainer-heading h3, .theme-dark .tuli-story h4 { color: #e9ecf7; }
+.theme-dark .tuli-duration, .theme-dark .tuli-stage, .theme-dark .tuli-visual-card, .theme-dark .compare-branch, .theme-dark .tuli-buttons button { border-color: #343b50; color: #c6cde0; background: #202638; }
+.theme-dark .tuli-buttons .tuli-play { border-color: #7584e0; color: #fff; background: #6877d2; }
+.theme-dark .tuli-visual-card strong, .theme-dark .compare-branch strong { color: #dce2f6; }
+.theme-dark .tuli-visual-card span, .theme-dark .tuli-story > p, .theme-dark .tuli-footnote { color: #a6afc3; }
+.theme-dark .decision-person { border-left-color: #343b50; }
 .theme-dark .help-faq details { border-left: 1px solid #343b50; border-right: 1px solid #343b50; padding-inline: 10px; }
 .theme-dark .help-faq details:first-of-type { border-top: 1px solid #343b50; border-radius: 8px 8px 0 0; }
 .theme-dark .help-faq details:last-of-type { border-radius: 0 0 8px 8px; }
@@ -481,6 +539,19 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 @media (max-width: 680px) {
   .below-grid.view-run-detail { grid-template-columns: minmax(0, 1fr); }
   .help-content { grid-template-columns: minmax(0, 1fr); gap: 19px; padding: 14px; }
+  .tuli-explainer { margin-inline: 12px; }
+  .tuli-explainer-heading { padding-inline: 14px; }
+  .tuli-stage { grid-template-columns: 74px minmax(0, 1fr); gap: 10px; min-height: 200px; margin-inline: 9px; padding: 13px 10px; }
+  .tuli-mascot svg { width: 67px; height: 82px; }
+  .tuli-story h4 { font-size: 15px; }
+  .tuli-story > p { font-size: 11px; }
+  .tuli-controls { align-items: flex-start; flex-direction: column; padding-inline: 14px; }
+  .tuli-footnote { padding-inline: 14px; line-height: 1.5; }
   .compact-page-title { font-size: 24px; }
   .theme-toggle { width: 32px; height: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuli-mascot svg, .tuli-beam, .tuli-visual-card, .compare-visual { animation: none; }
+  .tuli-progress button { transition: none; }
 }

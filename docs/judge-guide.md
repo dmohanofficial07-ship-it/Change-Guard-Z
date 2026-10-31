@@ -7,6 +7,7 @@ This guide explains what the live hackathon preview does, what it does not do, t
 ## Quick ways to see the project
 
 - [Open the read-only dashboard demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo). No GitHub sign-in or local setup is needed. The runs shown here are fictional sample data.
+- [Open the short animated walkthrough](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help). On the Help page, select **Play guide**; captions are always visible, and optional narration uses the browser's built-in speech.
 - [Open the real failure-and-fix pull request](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2) and its [failed rehearsal](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048481590) and [fixed rehearsal](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/actions/runs/41048764900). This is the real example behind the demo story.
 - [Open the live workspace](https://diffharbor-live.diffharbor-cloudflare.workers.dev). Connecting a judge's own repository requires a GitHub account and the setup below. It does not require installing Python, Docker, PostgreSQL, or Node on the judge's computer.
 
