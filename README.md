@@ -1,6 +1,14 @@
 # DiffHarbor
 
-DiffHarbor rehearses risky pull requests before a team merges them. It compares repository-configured checks on the base and candidate commits. Its impact map currently analyzes Python imports and common API routes. Other-language checks can be configured as shell commands when the workflow provides their runtime, but those languages do not yet get an impact map or turnkey setup.
+DiffHarbor rehearses a proposed GitHub change before a team merges it. It runs the same configured checks on the current and proposed commits, compares the evidence, and maps likely Python impact. It reports results for a human reviewer; it does not merge or deploy.
+
+[![DiffHarbor dashboard: Tuli explainer and Help & FAQ](docs/assets/dashboard-help.jpg)](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help)
+
+**Explore:** [Live read-only demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo) · [GitHub-connected app](https://diffharbor-live.diffharbor-cloudflare.workers.dev) · [50-second animated guide](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help) · [Technical handoff and video brief](docs/technical-handoff.md)
+
+**GitHub About description:** Pre-merge rehearsal for GitHub pull requests: compare checks on base and candidate commits, map likely Python impact, review evidence.
+
+The read-only demo uses fictional sample data. For a real rehearsal, sign in with your own GitHub account, install the public app on a public repository you control, add the workflow and config, then open a pull request. Python is the only language with an impact map. Other stacks can run configured checks when their workflow provides the runtime.
 
 ## Judge quick start
 
