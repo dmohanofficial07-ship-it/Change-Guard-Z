@@ -29,25 +29,31 @@ const scenes = [
   },
 ];
 
-function Tuli({ speaking }: { speaking: boolean }) {
+function Tuli() {
   return (
-    <div className={`tuli-person ${speaking ? 'speaking' : ''}`} role="img" aria-label="Tuli, the DiffHarbor guide">
+    <div className="tuli-person" role="img" aria-label="Tuli, the DiffHarbor guide">
       <svg viewBox="0 0 140 180" aria-hidden="true">
         <ellipse className="person-shadow" cx="70" cy="166" rx="35" ry="7" />
-        <path className="person-hair" d="M42 60c-5-28 10-44 30-44 24 0 34 19 27 45l-7 13H50z" />
-        <path className="person-ear" d="M47 54c-11-5-13 12-2 17m50-17c11-5 13 12 2 17" />
-        <ellipse className="person-face" cx="70" cy="58" rx="26" ry="31" />
-        <path className="person-fringe" d="M44 50c2-22 15-33 31-31 12 1 20 9 22 23-10-1-17-7-22-15-7 10-18 17-31 18z" />
-        <path className="person-brow" d="M55 57q5-4 10 0m11 0q5-4 10 0" />
-        <circle className="person-eye" cx="60" cy="62" r="2" /><circle className="person-eye" cx="80" cy="62" r="2" />
-        <path className="person-smile" d="M62 75q8 7 16 0" />
-        <ellipse className="person-mouth-open" cx="70" cy="75" rx="4" ry="6" />
+        <path className="person-hair" d="M43 62c-5-24 1-45 20-49 22-5 39 10 37 35l-2 37-10 9H51l-8-12z" />
+        <path className="person-ear" d="M47 54c-10-4-12 11-2 17m50-17c10-4 12 11 2 17" />
+        <ellipse className="person-face" cx="70" cy="58" rx="24" ry="30" />
+        <path className="person-fringe" d="M46 48c0-20 12-33 29-32 13 1 22 9 25 24-10-2-18-7-23-15-7 11-17 18-31 23z" />
+        <path className="person-hair-shine" d="M53 32q7-11 17-12" />
+        <path className="person-brow" d="M55 56q5-3 10 0m11 0q5-3 10 0" />
+        <ellipse className="person-eye-white" cx="60" cy="62" rx="4.2" ry="3.4" /><ellipse className="person-eye-white" cx="80" cy="62" rx="4.2" ry="3.4" />
+        <circle className="person-eye" cx="61" cy="62" r="2.1" /><circle className="person-eye" cx="81" cy="62" r="2.1" />
+        <circle className="person-eye-glint" cx="61.7" cy="61.2" r=".7" /><circle className="person-eye-glint" cx="81.7" cy="61.2" r=".7" />
+        <circle className="person-blush" cx="52" cy="71" r="4" /><circle className="person-blush" cx="88" cy="71" r="4" />
+        <path className="person-nose" d="M70 63q-2 6 1 7" />
+        <path className="person-smile" d="M61 75q9 8 18 0" />
         <path className="person-neck" d="M60 86h20v17H60z" />
-        <path className="person-shirt" d="M59 98 42 105l-8 48h72l-8-48-18-7-8 12z" />
-        <path className="person-collar" d="m58 98 12 12 12-12-5-4H63z" />
-        <path className="person-badge" d="m70 112 5 8-5 18-5-18z" />
-        <path className="person-arm" d="M40 108 23 128l9 8 19-19m47-9 17 20-9 9-19-20" />
-        <circle className="person-hand" cx="28" cy="135" r="6" /><circle className="person-hand" cx="112" cy="137" r="6" />
+        <path className="person-arm" d="M45 105c-9 4-12 11-7 19l20 17 7-7-15-18m45-11c9 4 12 11 7 19l-20 17-7-7 15-18" />
+        <path className="person-shirt" d="M59 98 43 104c-6 3-9 10-10 20l-4 29h82l-4-29c-1-10-4-17-10-20l-16-6-11 12z" />
+        <path className="person-collar" d="m58 98 12 12 12-12-5-5H63z" />
+        <path className="person-shirt-detail" d="M70 111v34m-20-31 5 3m35-3-5 3" />
+        <path className="person-badge" d="m70 113 4 7-4 12-4-12z" />
+        <ellipse className="person-hand" cx="62" cy="138" rx="7" ry="4.5" transform="rotate(28 62 138)" />
+        <ellipse className="person-hand" cx="75" cy="138" rx="7" ry="4.5" transform="rotate(-28 75 138)" />
         <path className="person-pants" d="M44 151h23l-3 15H46zm29 0h23l-2 15H75z" />
         <path className="person-shoe" d="M44 164h20q4 0 4 5H40q0-4 4-5m33 0h19q4 0 4 5H74q0-4 3-5" />
       </svg>
@@ -161,7 +167,7 @@ export default function TuliExplainer() {
         <span className="tuli-duration">About 50 seconds</span>
       </div>
       <div className={`tuli-film scene-${scene.visual} ${playing ? 'is-playing' : ''}`} aria-live="polite">
-        <Tuli speaking={playing && narration && speechAvailable} />
+        <Tuli />
         <div className="film-story">
           <div className="film-art"><SceneArt scene={scene.visual} /></div>
           <div className="film-copy">

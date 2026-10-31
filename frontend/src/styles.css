@@ -559,24 +559,30 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 /* Tuli's narrated 2D explainer */
 .tuli-explainer { background: linear-gradient(125deg, #f5f7ff 0%, #fbfcff 58%, #f3f8f6 100%); }
 .tuli-film { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 14px; min-height: 260px; margin: 0 14px; padding: 18px; overflow: hidden; border: 1px solid #e4e8f3; border-radius: 12px; background: linear-gradient(110deg, #ffffff 0%, #fafbff 100%); }
-.tuli-person { display: flex; align-self: end; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 1px; color: #5868bf; font: 700 11px 'Space Grotesk', sans-serif; }
+.tuli-person { position: relative; display: flex; align-self: end; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 1px; color: #537e79; font: 700 11px 'Space Grotesk', sans-serif; }
+.tuli-person::before { position: absolute; top: 18px; z-index: 0; width: 106px; height: 106px; border-radius: 50%; background: radial-gradient(circle, #fbf1d9 0%, #fbf5e8 54%, #fbf5e800 73%); content: ''; }
 .tuli-person svg { width: 116px; height: 160px; overflow: visible; }
+.tuli-person svg { position: relative; z-index: 1; }
 .person-shadow { fill: #e6e9f4; }
-.person-hair, .person-fringe { fill: #363751; }
-.person-face { fill: #efc4a5; }
-.person-ear, .person-neck { fill: #e7b596; }
-.person-brow, .person-smile { fill: none; stroke: #493e43; stroke-linecap: round; stroke-width: 2; }
-.person-eye { fill: #373744; }
-.person-mouth-open { fill: #8c4550; opacity: 0; }
-.person-shirt { fill: #6878ce; }
-.person-collar { fill: #dfe4ff; }
-.person-badge { fill: #f1c66e; }
-.person-arm, .person-hand { fill: #efc4a5; stroke: #d9a98a; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.person-hair, .person-fringe { fill: #39394d; }
+.person-hair-shine { fill: none; stroke: #55556b; stroke-linecap: round; stroke-width: 2; }
+.person-face { fill: #f2c9ad; }
+.person-ear, .person-neck, .person-hand { fill: #edc0a1; }
+.person-brow, .person-smile, .person-nose, .person-shirt-detail { fill: none; stroke: #55444a; stroke-linecap: round; stroke-width: 1.7; }
+.person-smile { stroke-width: 2.2; }
+.person-eye-white { fill: #fffaf2; }
+.person-eye { fill: #3e3842; }
+.person-eye-glint { fill: #fff; }
+.person-blush { fill: #e99791; opacity: .28; }
+.person-arm { fill: #5b9b8d; stroke: #4b877b; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.person-shirt { fill: #5b9b8d; }
+.person-shirt-detail { stroke: #a9d3c7; stroke-width: 1.4; }
+.person-collar { fill: #f7f4e9; }
+.person-badge { fill: #efc46e; }
+.person-hand { stroke: #d9a98d; stroke-width: .8; }
 .person-pants { fill: #39435f; }
 .person-shoe { fill: #343749; }
-.tuli-person.speaking .person-smile { opacity: 0; }
-.tuli-person.speaking .person-mouth-open { opacity: 1; animation: mouth-talk .22s ease-in-out infinite alternate; }
-.tuli-person.speaking .person-arm { transform-box: fill-box; transform-origin: 94% 20%; animation: tuli-wave .8s ease-in-out infinite alternate; }
+.person-badge { stroke: #d8aa54; stroke-width: .7; }
 .film-story { display: grid; grid-template-columns: minmax(220px, .95fr) minmax(240px, 1.05fr); align-items: center; gap: 20px; min-width: 0; }
 .film-art { display: grid; place-items: center; min-height: 200px; border: 1px solid #eaedf5; border-radius: 11px; background: radial-gradient(circle at 52% 45%, #fff 0, #fbfcff 72%); }
 .cartoon-visual { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 164px; padding: 12px; color: #5a6ac3; animation: scene-enter .5s cubic-bezier(.2,.7,.2,1) both; }
@@ -657,9 +663,10 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 .theme-dark .score-card.fixed > strong { color: #89ccb9; }
 .theme-dark .score-card > span:first-child, .theme-dark .score-card strong small, .theme-dark .evidence-card > span { color: #a6afc3; }
 .theme-dark .person-shadow { fill: #2a3145; }
+.theme-dark .tuli-person::before { background: radial-gradient(circle, #3a3740 0%, #302f3900 74%); }
+.theme-dark .person-face { fill: #e7b99e; }
+.theme-dark .person-shirt, .theme-dark .person-arm { fill: #4d8d82; }
 .theme-dark .not-automatic span { border-color: #343b50; background: #252b3e; }
-@keyframes mouth-talk { from { transform: scaleY(.55); } to { transform: scaleY(1.15); } }
-@keyframes tuli-wave { from { transform: rotate(-5deg); } to { transform: rotate(9deg); } }
 @keyframes scene-enter { from { opacity: 0; transform: translateY(7px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes bug-pop { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(8deg); } }
 @keyframes card-travel { 0%, 10% { transform: translateX(-8px); } 55%, 100% { transform: translateX(2px); } }
@@ -668,6 +675,16 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 @keyframes fix-glow { 0%, 100% { box-shadow: 0 8px 18px #3540660a; } 50% { box-shadow: 0 8px 20px #44a88920; } }
 @keyframes map-glow { 0%, 100% { box-shadow: 0 0 0 #6777ca00; } 50% { box-shadow: 0 0 0 3px #6777ca20; } }
 @keyframes avatar-pop { from { transform: scale(1); } to { transform: scale(1.09); } }
+
+@media (max-width: 1050px) {
+  .tuli-film { grid-template-columns: 92px minmax(0, 1fr); gap: 8px; }
+  .tuli-person svg { width: 86px; height: 132px; }
+  .film-story { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .film-art { min-height: 150px; }
+  .cartoon-visual { min-height: 130px; }
+  .film-copy h4 { margin: 4px 0; font-size: 17px; }
+  .film-copy p { font-size: 11px; }
+}
 
 @media (max-width: 680px) {
   .tuli-film { grid-template-columns: 79px minmax(0, 1fr); gap: 8px; min-height: 0; margin-inline: 9px; padding: 12px 9px; }
@@ -682,7 +699,7 @@ button, a { transition: background-color 150ms ease, border-color 150ms ease, co
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tuli-person svg *, .cartoon-visual, .scene-flow.is-playing .pull-card,
+  .cartoon-visual, .scene-flow.is-playing .pull-card,
   .scene-flow.is-playing .flow-runners, .scene-results.is-playing .score-card,
   .scene-impact.is-playing .map-node, .scene-decision.is-playing .human-avatar { animation: none !important; }
 }
