@@ -349,3 +349,138 @@ h2 { color: #232d43; font-size: 21px; font-weight: 690; letter-spacing: -.4px; l
   .check-status { font-size: 8px; }
   .run-row { padding-inline: 13px; }
 }
+
+/* Distinctive but restrained finish: geometric headings, readable body copy, and one vivid accent. */
+:root {
+  font-family: 'Manrope', 'Segoe UI Variable', 'Aptos', Inter, ui-sans-serif, system-ui, sans-serif;
+  --ink: #202743;
+  --muted: #626d83;
+  --line: #e1e5f0;
+  --green: #5968e8;
+  --green-soft: #eef0ff;
+}
+
+h1, h2, h3, .brand {
+  font-family: 'Space Grotesk', 'Segoe UI Variable Display', 'Aptos Display', sans-serif;
+}
+
+button, a { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
+:where(a, button, summary, [tabindex]):focus-visible { outline: 3px solid #8b96ff; outline-offset: 3px; }
+
+.workspace-switcher { cursor: default; box-shadow: 0 2px 8px #242b4a08; }
+.workspace-mode { padding: 4px 6px; border-radius: 5px; color: #5968ca; background: #f0f1ff; font-size: 8px; font-weight: 800; letter-spacing: .45px; }
+.switcher-chevron { display: none; }
+.workspace-avatar { color: #fff; background: linear-gradient(145deg, #6975f0, #4c58c8); }
+
+.nav-item:hover { color: #424ebd; background: #f5f5ff; }
+.nav-item.active { box-shadow: inset 3px 0 #5968e8; }
+.primary-button { min-height: 43px; border-radius: 10px; background: linear-gradient(110deg, #626ff0, #4e5bd1); box-shadow: 0 6px 16px #5968e82a; font-weight: 700; }
+.primary-button:hover { transform: translateY(-1px); border-color: #414dbd; background: linear-gradient(110deg, #5362e0, #424fbe); box-shadow: 0 9px 20px #5968e839; }
+.primary-button:active { transform: translateY(0); box-shadow: 0 3px 8px #5968e825; }
+.secondary-button { min-height: 42px; font-weight: 700; }
+.secondary-button:hover { border-color: #c5cbf2; box-shadow: 0 4px 12px #454fa810; }
+.help-button { text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+.help-button:hover { color: #424ebd; border-color: #c7cdf1; background: #f6f7ff; }
+.profile-menu:hover { color: #424ebd; background: #f0f1ff; }
+.run-row:hover { background: #f8f8ff; }
+.run-row-selected { background: #f0f1ff; box-shadow: inset 3px 0 #5968e8; }
+.actions-link:hover, .setup-files-link:hover { color: #3543b9; text-decoration: underline; }
+
+.setup-card { border-color: #dfe3f2; box-shadow: 0 12px 32px #28315a0b; }
+.setup-icon { color: #4f5fd3; background: linear-gradient(145deg, #f1f2ff, #e9ecff); }
+.setup-card-note { background: linear-gradient(90deg, #f7f8ff, #fbfbfe); }
+.empty-panel { box-shadow: 0 9px 25px #28315a0a; }
+
+@media (max-width: 680px) {
+  .workspace-mode { display: none; }
+  .primary-button, .secondary-button { min-height: 44px; }
+}
+
+/* Readability pass for dense evidence panels and dashboard status labels. */
+.environment-pill { padding: 7px 10px; border: 1px solid #e4e7f2; border-radius: 999px; background: #fff; font-size: 11px; font-weight: 700; }
+.demo-indicator { border-color: #d9e9e1; background: #f5fbf7; }
+.panel-heading { position: relative; }
+.panel-heading::before { position: absolute; top: -1px; left: 20px; width: 36px; height: 3px; border-radius: 0 0 3px 3px; background: linear-gradient(90deg, #5968e8, #8b95ff); content: ''; }
+.impact-stats span, .route-item span, .subtle-text, .finding-row p, .comparison-summary p, .check-insight-copy, .run-copy span { font-size: 11px; }
+.impact-path, .route-item strong { font-size: 11px; }
+.severity-pill { font-size: 9px; }
+.check-head, .check-status { font-size: 10px; }
+.comparison-label { font-size: 9px; }
+.check-logs strong { font-size: 10px; }
+.check-logs pre { font-size: 10px; }
+.run-state { font-size: 10px; }
+.page-footer { font-size: 10px; }
+
+@media (max-width: 680px) {
+  .environment-pill { padding: 6px 8px; font-size: 10px; }
+  .panel-heading::before { left: 16px; }
+  .impact-stats span, .route-item span, .subtle-text, .finding-row p, .comparison-summary p, .check-insight-copy, .run-copy span { font-size: 10px; }
+  .check-head, .check-status { font-size: 9px; }
+  .check-logs pre { font-size: 9px; }
+}
+
+/* Routed dashboard sections */
+.below-grid.view-impact, .below-grid.view-activity, .below-grid.view-help { grid-template-columns: minmax(0, 1fr); }
+.view-impact .evidence-panel, .view-impact .activity-panel,
+.view-activity .empty-panel:not(.activity-panel),
+.view-help .empty-panel:not(.help-center),
+.view-run-detail .activity-panel { display: none; }
+.below-grid.view-run-detail { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.compact-page-title { font-size: 27px; letter-spacing: -.65px; }
+.theme-toggle { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #e1e4ed; border-radius: 10px; color: #5865d5; background: #fff; }
+.theme-toggle:hover { border-color: #c6ccf0; background: #f5f6ff; }
+
+.help-center { grid-column: 1 / -1; }
+.help-content { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; padding: 20px; }
+.help-guide { display: grid; align-content: start; gap: 9px; }
+.help-guide > a { display: grid; grid-template-columns: 20px 1fr 16px; align-items: center; gap: 11px; padding: 13px; border: 1px solid #e7e9f2; border-radius: 10px; color: #5968d8; background: #fcfcff; }
+.help-guide > a:hover { border-color: #cbd0f2; background: #f6f7ff; }
+.help-guide > a > span { display: grid; gap: 3px; }
+.help-guide strong { color: #323d56; font-size: 12px; }
+.help-guide small { color: #727e93; font-size: 10px; line-height: 1.5; }
+.help-faq h3 { margin: 0 0 10px; color: #2a3449; font: 600 15px 'Space Grotesk', sans-serif; }
+.help-faq details { border-bottom: 1px solid #e9ebf2; }
+.help-faq summary { padding: 11px 2px; color: #3e4960; font-size: 12px; font-weight: 700; cursor: pointer; }
+.help-faq details p { padding: 0 2px 12px; color: #667187; font-size: 11px; line-height: 1.65; }
+.help-faq details a { display: inline-flex; align-items: center; gap: 5px; color: #4c5aca; font-weight: 700; }
+
+/* User-controlled dark theme */
+.app-shell.theme-dark { color-scheme: dark; color: #e8ebf5; background: #111521; }
+.theme-dark .sidebar, .theme-dark .topbar { border-color: #2b3142; background: #171c2a; }
+.theme-dark .brand, .theme-dark .breadcrumbs strong, .theme-dark h1, .theme-dark h2,
+.theme-dark .panel-heading h3, .theme-dark .help-faq h3 { color: #edf0fa; }
+.theme-dark .workspace-switcher, .theme-dark .environment-pill, .theme-dark .theme-toggle,
+.theme-dark .secondary-button { border-color: #343b50; color: #dce1ee; background: #1e2435; }
+.theme-dark .workspace-label, .theme-dark .breadcrumbs, .theme-dark .page-intro,
+.theme-dark .connection-status, .theme-dark .profile-copy span, .theme-dark .panel-heading p,
+.theme-dark .setup-copy > p, .theme-dark .setup-steps li, .theme-dark .empty-state strong,
+.theme-dark .empty-state span, .theme-dark .help-faq details p { color: #a6afc3; }
+.theme-dark .nav-item { color: #b3bbce; }
+.theme-dark .nav-item:hover { color: #d5d9ff; background: #232940; }
+.theme-dark .nav-item.active { color: #d5d9ff; background: #282e4b; }
+.theme-dark .setup-card, .theme-dark .empty-panel { border-color: #2c3346; background: #191e2d; box-shadow: 0 12px 32px #05071138; }
+.theme-dark .setup-card-note { border-color: #2c3346; color: #b3bbce; background: #202638; }
+.theme-dark .empty-state-icon, .theme-dark .impact-stats > div { border-color: #30374b; color: #aeb7ff; background: #20263a; }
+.theme-dark .impact-stats strong, .theme-dark .impact-path, .theme-dark .route-item strong,
+.theme-dark .route-item span, .theme-dark .subtle-text, .theme-dark .finding-row > div > strong,
+.theme-dark .finding-row p, .theme-dark .no-findings, .theme-dark .check-item summary > span:first-child,
+.theme-dark .check-item summary .check-name, .theme-dark .run-copy strong, .theme-dark .run-copy span,
+.theme-dark .run-state { color: #c3cadb; }
+.theme-dark .panel-heading, .theme-dark .finding-row, .theme-dark .check-list,
+.theme-dark .check-item, .theme-dark .run-row, .theme-dark .page-footer { border-color: #30374a; }
+.theme-dark .check-item summary:hover, .theme-dark .run-row:hover { background: #20263a; }
+.theme-dark .run-row-selected { background: #282e4b; }
+.theme-dark .help-guide > a, .theme-dark .help-faq details { border-color: #343b50; background: #1e2435; }
+.theme-dark .help-guide > a:hover { background: #272d45; }
+.theme-dark .help-guide strong, .theme-dark .help-faq summary { color: #e1e5f2; }
+.theme-dark .help-guide small { color: #a6afc3; }
+.theme-dark .help-faq details { border-left: 1px solid #343b50; border-right: 1px solid #343b50; padding-inline: 10px; }
+.theme-dark .help-faq details:first-of-type { border-top: 1px solid #343b50; border-radius: 8px 8px 0 0; }
+.theme-dark .help-faq details:last-of-type { border-radius: 0 0 8px 8px; }
+
+@media (max-width: 680px) {
+  .below-grid.view-run-detail { grid-template-columns: minmax(0, 1fr); }
+  .help-content { grid-template-columns: minmax(0, 1fr); gap: 19px; padding: 14px; }
+  .compact-page-title { font-size: 24px; }
+  .theme-toggle { width: 32px; height: 32px; }
+}

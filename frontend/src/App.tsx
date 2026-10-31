@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, ArrowUpRight, GitPullRequest, LogOut, ShieldCheck, Waypoints } from 'lucide-react';
+import { Activity, ArrowUpRight, BookOpen, CircleHelp, GitPullRequest, LogOut, Moon, ShieldCheck, Sun, Waypoints } from 'lucide-react';
 
 type GitHubStatus = {
   configured: boolean;
@@ -31,6 +31,30 @@ type CheckComparison = { name: string; baseline: CheckResult; candidate: CheckRe
 type CheckComparisonKind = 'new_failure' | 'pre_existing_failure' | 'fixed' | 'passing' | 'inconclusive';
 type CheckInsight = { kind: CheckComparisonKind; label: string; explanation: string };
 type CheckSummary = { title: string; description: string; tone: 'danger' | 'warning' | 'success' };
+type PageName = 'pull-requests' | 'impact' | 'activity' | 'help' | 'run-detail';
+type ThemeName = 'light' | 'dark';
+
+const README_JUDGE_GUIDE_URL = 'https://github.com/dmohanofficial07-ship-it/Change-Guard-Z#judge-quick-start';
+const SETUP_GUIDE_URL = 'https://github.com/dmohanofficial07-ship-it/Change-Guard-Z/blob/main/docs/live-service-setup.md';
+
+function readRoute(pathname: string): { demo: boolean; page: PageName; runId: string | null } {
+  const normalized = pathname.replace(/\/+$/, '') || '/';
+  const demo = normalized === '/demo' || normalized.startsWith('/demo/');
+  const route = demo ? normalized.replace(/^\/demo/, '') || '/' : normalized;
+  const runMatch = route.match(/^\/runs\/([^/]+)$/);
+  if (runMatch) return { demo, page: 'run-detail', runId: decodeURIComponent(runMatch[1]) };
+  if (route === '/impact') return { demo, page: 'impact', runId: null };
+  if (route === '/activity') return { demo, page: 'activity', runId: null };
+  if (route === '/help') return { demo, page: 'help', runId: null };
+  return { demo, page: 'pull-requests', runId: null };
+}
+
+function pageHref(demoMode: boolean, page: PageName, runId?: string): string {
+  const prefix = demoMode ? '/demo' : '';
+  if (page === 'pull-requests') return prefix || '/';
+  if (page === 'run-detail') return `${prefix}/runs/${encodeURIComponent(runId ?? '')}`;
+  return `${prefix}/${page}`;
+}
 
 function getCheckInsight(check: CheckComparison): CheckInsight {
   const baseline = String(check.baseline?.status ?? '').toLowerCase();
@@ -191,18 +215,31 @@ const DEMO_RUNS: Run[] = [DEMO_DETAILS['sample-failed'], DEMO_DETAILS['sample-fi
 );
 
 function App() {
-  const demoMode = import.meta.env.VITE_PUBLIC_DEMO === 'true'
-    || window.location.pathname === '/demo'
-    || window.location.pathname.startsWith('/demo/');
+  const route = readRoute(window.location.pathname);
+  const demoMode = import.meta.env.VITE_PUBLIC_DEMO === 'true' || route.demo;
+  const page = route.page;
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    try {
+      const saved = localStorage.getItem('diffharbor-theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch { /* Use the system theme if browser storage is unavailable. */ }
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const [githubStatus, setGithubStatus] = useState<GitHubStatus | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
   const [loadingRuns, setLoadingRuns] = useState(false);
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(route.runId);
   const [runDetail, setRunDetail] = useState<RunDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    try { localStorage.setItem('diffharbor-theme', theme); } catch { /* Keep the current selection for this session. */ }
+  }, [theme]);
 
   const signOut = async () => {
     try {
@@ -218,7 +255,7 @@ function App() {
   useEffect(() => {
     if (demoMode) {
       setRuns(DEMO_RUNS);
-      setSelectedRunId('sample-failed');
+      setSelectedRunId(route.runId ?? 'sample-failed');
       return;
     }
 
@@ -242,7 +279,7 @@ function App() {
           .then((response) => (response.ok ? response.json() : Promise.reject(new Error('Could not load runs'))))
           .then((data: Run[]) => {
             setRuns(data);
-            setSelectedRunId(data[0]?.id ?? null);
+            setSelectedRunId(route.runId ?? data[0]?.id ?? null);
           })
           .catch(() => setRuns([]))
           .finally(() => setLoadingRuns(false));
@@ -286,26 +323,41 @@ function App() {
     ? ['Install the GitHub App on a public repository', 'Add the workflow and check config to its default branch', 'Open a pull request and review the evidence']
     : ['Sign in with GitHub', 'Install the GitHub App on a public repository', 'Add the setup files, then open a pull request'];
   const checkSummary = runDetail ? summarizeChecks(runDetail.check_results) : null;
+  const pageTitle = page === 'pull-requests'
+    ? demoMode ? 'Try a sample rehearsal' : 'Pull requests'
+    : page === 'impact' ? 'Impact analysis'
+    : page === 'activity' ? 'Activity'
+    : page === 'help' ? 'Help & FAQ'
+    : 'Rehearsal details';
+  const pageDescription = page === 'pull-requests'
+    ? demoMode
+      ? 'DiffHarbor maps what a code change may affect, then compares checks on the current and proposed versions. Select a sample run to explore the failure and fix.'
+      : 'Review proposed changes, affected Python code, and check results before deciding whether to merge.'
+    : page === 'impact' ? 'See which Python files and API routes may be affected by the selected change.'
+    : page === 'activity' ? 'Browse rehearsal runs and open any run to review its evidence.'
+    : page === 'help' ? 'A short guide to the dashboard, followed by answers to common questions.'
+    : 'Compare the changed code paths and check results for this pull request.';
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell theme-${theme}`}>
       <aside className="sidebar">
-        <a className="brand" href="#home" aria-label="DiffHarbor home">
+        <a className="brand" href={pageHref(demoMode, 'pull-requests')} aria-label="DiffHarbor home">
           <span className="brand-mark"><ShieldCheck size={18} strokeWidth={2.3} /></span>
           <span>diffharbor</span>
         </a>
 
         <div className="workspace-label">WORKSPACE</div>
-        <button className="workspace-switcher" type="button">
-          <span className="workspace-avatar">W</span>
-          <span className="workspace-name">Your workspace</span>
-          <span className="switcher-chevron">⌄</span>
-        </button>
+        <div className="workspace-switcher" title={demoMode ? 'Fictional sample workspace' : user ? `GitHub workspace for @${user.login}` : 'Sign in with GitHub to connect a workspace'}>
+          <span className="workspace-avatar">{demoMode ? 'S' : user?.login?.slice(0, 1).toUpperCase() ?? 'G'}</span>
+          <span className="workspace-name">{demoMode ? 'Sample workspace' : user ? `@${user.login}` : 'GitHub workspace'}</span>
+          <span className="workspace-mode">{demoMode ? 'DEMO' : user ? 'CONNECTED' : 'GITHUB'}</span>
+        </div>
 
         <nav className="primary-nav" aria-label="Main navigation">
-          <a className="nav-item active" href="#pull-requests"><GitPullRequest size={17} /> Pull requests</a>
-          <a className="nav-item" href="#impact"><Waypoints size={17} /> Impact analysis</a>
-          <a className="nav-item" href="#activity"><Activity size={17} /> Activity</a>
+          <a className={`nav-item ${page === 'pull-requests' ? 'active' : ''}`} href={pageHref(demoMode, 'pull-requests')} aria-current={page === 'pull-requests' ? 'page' : undefined}><GitPullRequest size={17} /> Pull requests</a>
+          <a className={`nav-item ${page === 'impact' ? 'active' : ''}`} href={pageHref(demoMode, 'impact')} aria-current={page === 'impact' ? 'page' : undefined}><Waypoints size={17} /> Impact analysis</a>
+          <a className={`nav-item ${page === 'activity' || page === 'run-detail' ? 'active' : ''}`} href={pageHref(demoMode, 'activity')} aria-current={page === 'activity' || page === 'run-detail' ? 'page' : undefined}><Activity size={17} /> Activity</a>
+          <a className={`nav-item ${page === 'help' ? 'active' : ''}`} href={pageHref(demoMode, 'help')} aria-current={page === 'help' ? 'page' : undefined}><CircleHelp size={17} /> Help & FAQ</a>
         </nav>
 
         <div className="sidebar-bottom">
@@ -320,18 +372,18 @@ function App() {
 
       <main className="main-content" id="home">
         <header className="topbar">
-          <div className="breadcrumbs"><span>Workspace</span><span className="crumb-divider">/</span><strong>Pull requests</strong></div>
-          <div className="topbar-right"><span className={`environment-pill ${demoMode ? 'demo-indicator' : ''}`}><span className="status-dot" /> {demoMode ? 'Read-only sample' : user ? 'GitHub connected' : signInUrl ? 'Sign in required' : 'Setup required'}</span><button className="help-button" type="button" aria-label="Help">?</button></div>
+          <div className="breadcrumbs"><span>{demoMode ? 'Sample workspace' : 'Workspace'}</span><span className="crumb-divider">/</span><strong>{pageTitle}</strong></div>
+          <div className="topbar-right"><span className={`environment-pill ${demoMode ? 'demo-indicator' : ''}`}><span className="status-dot" /> {demoMode ? 'Read-only sample' : user ? 'GitHub connected' : signInUrl ? 'Sign in required' : 'Setup required'}</span><button className="theme-toggle" type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}</button><a className="help-button" href={pageHref(demoMode, 'help')} aria-label="Open Help and FAQ" title="Open Help & FAQ"><CircleHelp size={16} /></a></div>
         </header>
 
-        <section className="page-content" id="pull-requests">
-          <div className="eyebrow"><span className="eyebrow-line" /> CHANGE REHEARSAL</div>
+        <section className={`page-content page-${page}`}>
+          <div className="eyebrow"><span className="eyebrow-line" /> {page === 'pull-requests' ? 'CHANGE REHEARSAL' : page === 'run-detail' ? 'RUN REPORT' : pageTitle.toUpperCase()}</div>
           <div className="page-heading-row">
             <div>
-              <h1>{demoMode ? 'Try a sample rehearsal' : 'Pull requests'}</h1>
-              <p className="page-intro">{demoMode ? 'Explore a fictional backend change that fails a check, then passes after a fix.' : 'See what a change might affect before it reaches production.'}</p>
+              <h1 className={demoMode && page === 'pull-requests' ? 'compact-page-title' : undefined}>{pageTitle}</h1>
+              <p className="page-intro">{pageDescription}</p>
             </div>
-            {demoMode ? (
+            {page === 'pull-requests' && (demoMode ? (
               <a className="primary-button" href={DEMO_PR_URL} target="_blank" rel="noreferrer">
                 <GitPullRequest size={16} /> View real demo PR <ArrowUpRight size={15} />
               </a>
@@ -342,13 +394,14 @@ function App() {
             ) : !user && signInUrl ? (
               <a className="primary-button" href={signInUrl}><GitPullRequest size={16} /> Sign in with GitHub <ArrowUpRight size={15} /></a>
             ) : (
-              <button className="primary-button" type="button" disabled>
-                <GitPullRequest size={16} /> {user ? 'Configure GitHub App' : 'Configure GitHub sign-in'} <ArrowUpRight size={15} />
-              </button>
-            )}
+              <a className="primary-button" href={SETUP_GUIDE_URL} target="_blank" rel="noreferrer">
+                <GitPullRequest size={16} /> View setup guide <ArrowUpRight size={15} />
+              </a>
+            ))}
+            {page === 'run-detail' && <a className="secondary-button" href={pageHref(demoMode, 'activity')}>Back to activity</a>}
           </div>
 
-          <section className="setup-card" aria-labelledby="setup-title">
+          {page === 'pull-requests' && <section className="setup-card" aria-labelledby="setup-title">
             <div className="setup-card-main">
               <div className="setup-icon"><GitPullRequest size={19} /></div>
               <div className="setup-copy">
@@ -365,15 +418,34 @@ function App() {
                 ) : !user && signInUrl ? (
                   <a className="secondary-button" href={signInUrl}>Sign in with GitHub <ArrowUpRight size={15} /></a>
                 ) : (
-                  <a className="secondary-button" href="#github-setup">Set up GitHub App credentials <ArrowUpRight size={15} /></a>
+                  <a className="secondary-button" href={SETUP_GUIDE_URL} target="_blank" rel="noreferrer">Read the GitHub setup guide <ArrowUpRight size={15} /></a>
                 )}
                 {!demoMode && <a className="setup-files-link" href="https://github.com/dmohanofficial07-ship-it/Change-Guard-Z/tree/main/integrations/github/templates" target="_blank" rel="noreferrer">View the workflow and config templates <ArrowUpRight size={14} /></a>}
               </div>
             </div>
             <div className="setup-card-note"><span className="note-shield"><ShieldCheck size={16} /></span><span>{demoMode ? 'Sample mode is read-only. It does not connect to GitHub or expose any real project data.' : 'Analysis runs in the repository’s CI environment. DiffHarbor reports evidence; your team makes the release decision.'}</span></div>
-          </section>
+          </section>}
 
-          <div className="below-grid">
+          <div className={`below-grid view-${page}`}>
+            {page === 'help' && <section className="empty-panel help-center">
+              <div className="panel-heading"><div><h3>Dashboard navigation</h3><p>Choose a section to see the matching part of a rehearsal.</p></div><BookOpen size={18} /></div>
+              <div className="help-content">
+                <div className="help-guide">
+                  <a href={pageHref(demoMode, 'pull-requests')}><GitPullRequest size={17} /><span><strong>Pull requests</strong><small>Start a sample rehearsal or connect a repository.</small></span><ArrowUpRight size={15} /></a>
+                  <a href={pageHref(demoMode, 'impact')}><Waypoints size={17} /><span><strong>Impact analysis</strong><small>Review affected Python files and API routes.</small></span><ArrowUpRight size={15} /></a>
+                  <a href={pageHref(demoMode, 'activity')}><Activity size={17} /><span><strong>Activity</strong><small>Browse runs, then open one for its report.</small></span><ArrowUpRight size={15} /></a>
+                </div>
+                <div className="help-faq">
+                  <h3>Frequently asked questions</h3>
+                  <details><summary>Can I explore the sample without signing in?</summary><p>Yes. The read-only sample uses fictional results and does not connect to GitHub. To use the real workflow with your own repository, sign in with your GitHub account.</p></details>
+                  <details><summary>Does the live workflow require GitHub sign-in?</summary><p>Yes. Sign in with your own GitHub account, then install the DiffHarbor app on a public Python repository you control or are allowed to connect.</p></details>
+                  <details><summary>Can I connect any kind of project?</summary><p>The current hosted preview analyzes public Python repositories. Other project types need their own analyzer.</p></details>
+                  <details><summary>What does impact analysis tell me?</summary><p>It maps changed Python modules to affected files and common decorator-based API routes. It is a useful map, not a complete proof of runtime behavior.</p></details>
+                  <details><summary>Does DiffHarbor merge or deploy my change?</summary><p>No. It reports check results and evidence. Your team decides whether to merge or release.</p></details>
+                  <details><summary>Where can I find the setup guide?</summary><p><a href={README_JUDGE_GUIDE_URL} target="_blank" rel="noreferrer">Open the judge quick start and setup links <ArrowUpRight size={13} /></a></p></details>
+                </div>
+              </div>
+            </section>}
             <section className="empty-panel" id="impact">
               <div className="panel-heading"><div><h3>Impact analysis</h3><p>{runDetail ? `${runDetail.repository_owner}/${runDetail.repository_name} · PR #${runDetail.pull_request_number}` : 'Code paths connected to a proposed change'}</p></div><Waypoints size={18} /></div>
               {loadingDetail ? (
@@ -433,11 +505,11 @@ function App() {
               {runs.length ? (
                 <div className="run-list">
                   {runs.slice(0, 5).map((run) => (
-                    <button className={`run-row ${selectedRunId === run.id ? 'run-row-selected' : ''}`} onClick={() => setSelectedRunId(run.id)} type="button" key={run.id} aria-pressed={selectedRunId === run.id}>
+                    <a className={`run-row ${selectedRunId === run.id ? 'run-row-selected' : ''}`} href={pageHref(demoMode, 'run-detail', run.id)} key={run.id} aria-current={selectedRunId === run.id ? 'true' : undefined}>
                       <span className={`run-status status-${run.status}`} />
                       <span className="run-copy"><strong>{run.repository_owner}/{run.repository_name} · #{run.pull_request_number}</strong><span>{run.pull_request_title}</span></span>
                       <span className="run-state">{run.status.replaceAll('_', ' ')}</span>
-                    </button>
+                    </a>
                   ))}
                 </div>
               ) : (

@@ -224,6 +224,7 @@ async function apiFetch(path: string, token: string, init: RequestInit = {}): Pr
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/vnd.github+json');
   headers.set('Authorization', `Bearer ${token}`);
+  headers.set('User-Agent', 'DiffHarbor');
   headers.set('X-GitHub-Api-Version', API_VERSION);
   return fetch(path.startsWith('https://') ? path : `https://api.github.com${path}`, { ...init, headers });
 }
@@ -885,6 +886,7 @@ async function logout(request: Request, env: Env): Promise<Response> {
           headers: {
             Authorization: `Basic ${basic}`,
             Accept: 'application/vnd.github+json',
+            'User-Agent': 'DiffHarbor',
             'X-GitHub-Api-Version': API_VERSION,
             'Content-Type': 'application/json',
           },

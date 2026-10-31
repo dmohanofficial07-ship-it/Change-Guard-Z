@@ -14,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "diffharbor",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "f2f289f8-32fc-46bb-b2b6-c55a96a05a31",
       "migrations_dir": "migrations"
     }
   ],
@@ -30,6 +30,7 @@
     ]
   },
   "vars": {
+    "APP_PUBLIC_URL": "https://diffharbor-live.diffharbor-cloudflare.workers.dev",
     "GITHUB_WORKFLOW_FILE": "changeguard.yml"
   }
 }
