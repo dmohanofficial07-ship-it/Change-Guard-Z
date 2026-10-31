@@ -8,9 +8,9 @@
 
 **Demo video:** Record the walkthrough in [hackathon-demo.md](hackathon-demo.md), within the event's two-minute limit.
 
-**Live project link:** Add the Cloudflare Worker URL after deploying the live service (sign in and connect a public repository to show real data).
+**Live project link:** [Cloudflare app](https://diffharbor-live.diffharbor-cloudflare.workers.dev/) (sign in and connect a public repository to rehearse real changes) · [read-only judge demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo)
 
-**Sample walkthrough:** The same Cloudflare Worker URL with `/demo` shows the read-only fictional example. The existing Render Static Site from `render.yaml` remains a separate sample host.
+**Sample walkthrough:** The Cloudflare Worker’s `/demo` route shows the read-only fictional example. The same service hosts the GitHub-connected app and the sample.
 
 ## Project explanation
 

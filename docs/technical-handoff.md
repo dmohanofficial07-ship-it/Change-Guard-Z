@@ -231,6 +231,6 @@ The hosted flow is limited to public GitHub repositories. Candidate code runs on
 
 ## Repository state and validation notes
 
-At the inspected starting point, local main and origin/main were aligned at commit 93ef3ae. The working tree had an untracked dashboard screenshot at docs/assets/dashboard-help.jpg and an untracked output directory containing a local PDF; neither was part of that commit. Do not add output or environment files to the repository. backend/.env is ignored and must remain private.
+The implementation details above were inspected at source commit `93ef3ae`; this handoff and the dashboard screenshot were added to `main` in commit `f39edb5`. The local `output/` folder is not part of the repository, and `backend/.env` remains ignored and private.
 
 This handoff is based on source/document inspection. No test suite or production smoke test was run while preparing it. Check the linked live service and PR/Actions results immediately before recording, since deployments, provider quotas, and external status can change.

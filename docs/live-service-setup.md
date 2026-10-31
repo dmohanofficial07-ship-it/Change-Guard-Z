@@ -113,4 +113,4 @@ Python is the fully validated analyzer path. The runner can execute other langua
 
 ## Local development
 
-The existing `backend/` FastAPI + PostgreSQL + Redis path is for local development and self-hosting. The Cloudflare deployment uses the separate Worker API and D1 schema described above. For the local path, see the main [README](../README.md). The static Render demo configuration in `render.yaml` is separate and does not deploy the live API.
+The existing `backend/` FastAPI + PostgreSQL + Redis path is for local development and self-hosting. The Cloudflare deployment uses the separate Worker API and D1 schema described above, and serves the read-only `/demo` page from the same public app. For the local path, see the main [README](../README.md).

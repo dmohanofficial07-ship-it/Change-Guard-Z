@@ -6,8 +6,6 @@ DiffHarbor rehearses a proposed GitHub change before a team merges it. It runs t
 
 **Explore:** [Live read-only demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo) · [GitHub-connected app](https://diffharbor-live.diffharbor-cloudflare.workers.dev) · [50-second animated guide](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help) · [Technical handoff and video brief](docs/technical-handoff.md)
 
-**GitHub About description:** Pre-merge rehearsal for GitHub pull requests: compare checks on base and candidate commits, map likely Python impact, review evidence.
-
 The read-only demo uses fictional sample data. For a real rehearsal, sign in with your own GitHub account, install the public app on a public repository you control, add the workflow and config, then open a pull request. Python is the only language with an impact map. Other stacks can run configured checks when their workflow provides the runtime.
 
 ## Judge quick start
@@ -18,7 +16,7 @@ The read-only demo uses fictional sample data. For a real rehearsal, sign in wit
 > - [Open the live read-only demo](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo). No GitHub account is needed to explore it; the sample results are fictional.
 > - [Play the short animated dashboard guide](https://diffharbor-live.diffharbor-cloudflare.workers.dev/demo/help). It includes Tuli, scene-by-scene captions, and optional browser narration.
 > - To try the live workflow with a repository you control, open the [GitHub-connected workspace](https://diffharbor-live.diffharbor-cloudflare.workers.dev) and sign in with **your own GitHub account**. You do not need the project owner's account.
-> - **Current install status (31 October 2026): Public.** Judges can [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on a public GitHub repository they own or are allowed to connect. Review the requested permissions and select only the repository you want to connect. Organization installations may require an organization owner’s approval. GitHub does not let a public app return to private while it is installed on other accounts.
+> - **Current install status (31 October 2026): Public.** Judges can [install ChangeGuard Northstar](https://github.com/apps/changeguard-northstar/installations/new) on a public GitHub repository they own or are allowed to connect. **ChangeGuard Northstar is the GitHub App’s registered name; DiffHarbor is the project name.** Review the requested permissions and select only the repository you want to connect. Organization installations may require an organization owner’s approval. GitHub does not let a public app return to private while it is installed on other accounts.
 > - For a real rehearsal, add [`changeguard.toml`](integrations/github/templates/changeguard.toml) and [the workflow template](integrations/github/templates/changeguard-workflow.yml) to that repository's default branch, then open a pull request. The hosted free preview runs public repositories only.
 >
 > **Quick walkthrough:** [failure-and-fix demo PR](https://github.com/dmohanofficial07-ship-it/northstar-mule-intelligence/pull/2) · [setup guide](docs/live-service-setup.md) · [judge constraints and FAQ](docs/judge-guide.md)
@@ -92,11 +90,7 @@ Some integration identifiers intentionally retain the original `changeguard` pre
 
 See the [2-minute demo walkthrough](docs/hackathon-demo.md) for the working failure-and-fix example, links to its pull request and workflow runs, and a short recording checklist.
 
-The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The separate static-site definition in `render.yaml` can publish this judge demo without depending on your computer or any private service.
-
-## Publish the public judge demo
-
-The public `/demo` page is a static, read-only showcase. It uses fictional rehearsal data and does not require the API, storage, GitHub sign-in, or secrets. The existing `render.yaml` is only for that demo. The full public-repository app is deployed separately to Cloudflare Free and includes `/demo` as well as the GitHub-connected workspace.
+The dashboard's `/demo` view contains clearly marked fictional results and does not connect to GitHub or load saved workspace data. The Cloudflare Worker serves both `/demo` and the GitHub-connected workspace; the sample page is read-only and does not need sign-in.
 
 ## Deploy the live user-facing service
 
